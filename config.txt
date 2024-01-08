@@ -1,0 +1,12 @@
+host localhost
+name Gravy 1.0.0
+public_html www/public_html
+private_html www/private_html
+certificate_path cert.pem
+private_key_path key.pem
+port 8080
+ssl_port 8081
+use_https true
+use_https_forwarding true
+max_header_size 8192
+buffer_size 4096
