@@ -2,8 +2,7 @@
 #include "HttpSettings.hpp"
 #include "Console.hpp"
 #include "StringUtility.hpp"
-#include "StringBuilder.hpp"
-
+#include "JsonBuilder.hpp"
 
 class APIResponse
 {
@@ -19,11 +18,10 @@ public:
 
     std::string Serialize() const
     {
-        const std::string DQ = "\"";
-        StringBuilder sb;
-        sb.Append("{" + DQ + "NumberOfRequests" + DQ + ":" + std::to_string(numberOfRequests) + ",");
-        sb.Append(DQ + "Message" + DQ + ":" + DQ + message + DQ + "}");
-        return sb.ToString();
+        JsonBuilder builder;
+        builder.AddProperty("Message", "Thank you!");
+        builder.AddProperty("NumberOfRequests", numberOfRequests);
+        return builder.ToString();
     }
 };
 
