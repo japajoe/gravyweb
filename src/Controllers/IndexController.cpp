@@ -20,7 +20,7 @@ HttpResponse IndexController::OnGet(HttpContext *context)
     if(result)
     {
         html = content.GetContent();
-        StringUtility::Replace(html, "$(title)", "Home - Swerva Web");
+        StringUtility::Replace(html, "$(title)", "Home - Gravy Web");
         StringUtility::Replace(html, "$(header_text)", "Home");
         StringUtility::Replace(html, "$(head)", "");
         StringUtility::Replace(html, "$(content)", "<p>Welcome to the home page</p>");
@@ -33,7 +33,7 @@ HttpResponse IndexController::OnGet(HttpContext *context)
         "<head>\n"
         "    <meta charset=\"UTF-8\">\n"
         "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-        "    <title>Swerva Web</title>\n"
+        "    <title>Gravy Web</title>\n"
         "</head>\n"
         "<body>\n"
         "    <h1>Home</h1>\n"

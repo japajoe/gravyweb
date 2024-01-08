@@ -20,7 +20,7 @@ HttpResponse NotFoundController::OnGet(HttpContext *context)
     if(result)
     {
         html = content.GetContent();
-        StringUtility::Replace(html, "$(title)", "Not Found - Swerva Web");
+        StringUtility::Replace(html, "$(title)", "Not Found - Gravy Web");
         StringUtility::Replace(html, "$(header_text)", "Error 404");
         StringUtility::Replace(html, "$(head)", "");
         StringUtility::Replace(html, "$(content)", "<p>The requested document was not found</p>");
@@ -33,7 +33,7 @@ HttpResponse NotFoundController::OnGet(HttpContext *context)
         "<head>\n"
         "    <meta charset=\"UTF-8\">\n"
         "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-        "    <title>Swerva Web</title>\n"
+        "    <title>Gravy Web</title>\n"
         "</head>\n"
         "<body>\n"
         "    <h1>Whoops 404 Not Found</h1>\n"
