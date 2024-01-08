@@ -38,8 +38,15 @@ HttpResponse APIController::OnPost(HttpContext *context)
 {
     numRequests++;
 
-    std::string json = ReadContentAsString(context);    
-    Console::WriteLog("Received JSON: " + json);    
-    APIResponse response(numRequests, "Thank you!");
-    return HttpResponse(HttpStatusCode::OK, HttpContentType(HttpMediaType::ApplicationJson), response.Serialize());
+    if(context->GetRequest()->GetContentLength() > 0)
+    {
+        std::string json = ReadContentAsString(context);    
+        Console::WriteLog("Received JSON: " + json);    
+        APIResponse response(numRequests, "Thank you!");
+        return HttpResponse(HttpStatusCode::OK, HttpContentType(HttpMediaType::ApplicationJson), response.Serialize());
+    }
+    else
+    {
+        return HttpResponse(HttpStatusCode::BadRequest);
+    }
 }
