@@ -38,7 +38,11 @@ HttpResponse APIController::OnPost(HttpContext *context)
 {
     numRequests++;
 
-    if(context->GetRequest()->GetContentLength() > 0)
+    HttpRequest *request = context->GetRequest();
+    uint64_t contentSize = request->GetContentLength();
+    HttpMediaType mediaType = request->GetContentType().GetMediaType();
+
+    if(contentSize > 0 && mediaType == HttpMediaType::ApplicationJson)
     {
         std::string json = ReadContentAsString(context);    
         Console::WriteLog("Received JSON: " + json);    

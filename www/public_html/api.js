@@ -28,8 +28,7 @@ function onButtonClick() {
     })
     .then(response => {
         if (!response.ok) {
-            responseArea.innerText = 'Something went wrong';
-            throw new Error(`HTTP error. Status: ${response.status}`);
+            throw response.status;
         }
         return response.json(); // Parse the JSON response
     })
@@ -42,7 +41,7 @@ function onButtonClick() {
     })
     .catch(error => {
         if (responseArea) {
-            responseArea.innerText = error;
+            responseArea.innerText = 'Error status: ' + error;
         } else {
             console.error('Error during POST request:', error);
         }
