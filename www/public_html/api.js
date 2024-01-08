@@ -1,36 +1,38 @@
-// This function will be executed when the document is fully loaded
+let responseArea;
+
 document.addEventListener('DOMContentLoaded', function () {
+    responseArea = document.getElementById('responseArea');
     const button = document.getElementById('buttonSend');
 
     if (button) {
-        // Register a click event
         button.addEventListener('click', function () {
             onButtonClick();
         });
     } 
 });
 
-// Define the URL to which you want to send the POST request
-const url = 'api/v1';
-
-// Data to be sent in the POST request
 const data = {
     key1: 'value1',
     key2: 'value2'
 };
 
 function onButtonClick() {
-    const responseArea = document.getElementById('responseArea');
+    const url = 'api/v1';
 
     fetch(url, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            // Add any other headers if needed
+            'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data), // Convert data to JSON format
+        body: JSON.stringify(data)
     })
-    .then(response => response.json()) // Parse the JSON response
+    .then(response => {
+        if (!response.ok) {
+            responseArea.innerText = 'Something went wrong';
+            throw new Error(`HTTP error. Status: ${response.status}`);
+        }
+        return response.json(); // Parse the JSON response
+    })
     .then(data => {
         if (responseArea) {
             responseArea.innerText = JSON.stringify(data);
