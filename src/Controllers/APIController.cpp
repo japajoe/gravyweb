@@ -19,7 +19,7 @@ public:
     std::string Serialize() const
     {
         JsonBuilder builder;
-        builder.AddProperty("Message", "Thank you!");
+        builder.AddProperty("Message", message);
         builder.AddProperty("NumberOfRequests", numberOfRequests);
         return builder.ToString();
     }
