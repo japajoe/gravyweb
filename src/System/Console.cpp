@@ -1,7 +1,7 @@
 #include "Console.hpp"
 #include "DateTime.hpp"
-#include <map>
 #include <iostream>
+#include <map>
 
 static std::map<ConsoleColor, std::string> consoleColorMap;
 
@@ -22,29 +22,39 @@ static void InitializeConsoleColors()
 
 void Console::WriteLine(const std::string &text, ConsoleColor color)
 {
+#ifdef _WIN32
+    std::cout << text << '\n';
+#else
     InitializeConsoleColors();
 
     std::string &col = consoleColorMap[color];
     std::string &colreset = consoleColorMap[ConsoleColor::Reset];
     std::cout << col << text << colreset << '\n';
+#endif
 }
 
 void Console::Write(const std::string &text, ConsoleColor color)
 {
+#ifdef _WIN32
+    std::cout << text;
+#else
     InitializeConsoleColors();
 
     std::string &col = consoleColorMap[color];
     std::string &colreset = consoleColorMap[ConsoleColor::Reset];
     std::cout << col << text << colreset;
+#endif
 }
 
 void Console::WriteLog(const std::string &text)
 {
-    InitializeConsoleColors();
-
     std::string timestamp = DateTime::Now().FormattedTimestamp();
-
+#ifdef _WIN32
+    std::cout << timestamp << ' ' << text << '\n';
+#else
+    InitializeConsoleColors();
     std::string &colTime = consoleColorMap[ConsoleColor::Green];
     std::string &colreset = consoleColorMap[ConsoleColor::Reset];
     std::cout << colTime << timestamp << colreset << ' ' << text << colreset << '\n';
+#endif
 }
