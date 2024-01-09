@@ -2,6 +2,7 @@
 #define CONSOLE_HPP
 
 #include <string>
+#include <iostream>
 
 enum class ConsoleColor
 {

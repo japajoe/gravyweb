@@ -57,7 +57,6 @@ bool TcpListener::Start()
             return false;
         }
 
-        // Check if the private key matches the certificate
         if (!SSL_CTX_check_private_key(sslContext)) 
         {
             gravy_tcp_socket_close(&socket);

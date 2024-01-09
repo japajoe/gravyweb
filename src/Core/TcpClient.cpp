@@ -2,6 +2,7 @@
 
 TcpClient::TcpClient()
 {
+    socket.fd = -1;
     ssl = nullptr;
 }
 
@@ -30,13 +31,15 @@ ssize_t TcpClient::Send(unsigned char *buffer, size_t offset, size_t count)
 void TcpClient::Close()
 {
     if(socket.fd >= 0)
+    {
         gravy_tcp_socket_close(&socket);
     
-    if(ssl)
-    {
-        SSL_shutdown(ssl);
-        SSL_free(ssl);
-        ssl = nullptr;
+        if(ssl)
+        {
+            SSL_shutdown(ssl);
+            SSL_free(ssl);
+            ssl = nullptr;
+        }
     }
 }
 

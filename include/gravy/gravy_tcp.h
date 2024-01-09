@@ -14,7 +14,6 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <netdb.h>
 #include <unistd.h>
 #include <openssl/ssl.h>
 #endif
@@ -39,7 +38,6 @@ extern "C" {
     GRAVY_API ssize_t gravy_tcp_socket_receive(gravy_tcp_socket_t *socket, void *buffer, size_t size);
     GRAVY_API void gravy_tcp_socket_close(gravy_tcp_socket_t *socket);
     GRAVY_API int gravy_tcp_socket_set_option(gravy_tcp_socket_t *socket, int level, int option, const void *value, uint32_t valueSize);
-    GRAVY_API int gravy_tcp_get_ip_from_domain(const char *domainName, char *result, size_t result_size);
 #ifdef __cplusplus
 }
 #endif

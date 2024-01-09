@@ -1,7 +1,9 @@
 #include "HttpServer.hpp"
 #include "HttpSettings.hpp"
-#include "StringUtility.hpp"
+#include "Directory.hpp"
+#include "File.hpp"
 #include "MemoryStream.hpp"
+#include "StringUtility.hpp"
 #include "Console.hpp"
 #include <memory>
 #include <future>
@@ -22,6 +24,33 @@ static void HandleSignal(int signum)
 
 HttpServer::HttpServer(const HttpConfig &config)
 {
+    if(config.useHttps)
+    {
+        if(!File::Exists(config.certificatePath))
+        {
+            std::cout << "Certificate file not found: " << config.certificatePath << '\n';
+            exit(1);
+        }
+
+        if(!File::Exists(config.privateKeyPath))
+        {
+            std::cout << "Private key file not found: " << config.privateKeyPath << '\n';
+            exit(1);
+        }
+    }
+
+    if(!Directory::Exists(config.privateHtml))
+    {
+        std::cout << "Private html directory does not exist: " << config.privateHtml << '\n';
+        exit(1);
+    }
+
+    if(!Directory::Exists(config.publicHtml))
+    {
+        std::cout << "Public html directory does not exist: " << config.publicHtml << '\n';
+        exit(1);
+    }
+
     //Needed to handle an interrupt request and shut down the library
     if (signal(SIGINT, HandleSignal) == SIG_ERR) 
     {

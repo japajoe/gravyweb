@@ -89,27 +89,3 @@ void gravy_tcp_socket_close(gravy_tcp_socket_t *socket) {
 int gravy_tcp_socket_set_option(gravy_tcp_socket_t *socket, int level, int option, const void *value, uint32_t valueSize) {
     return setsockopt(socket->fd, level, option, value, valueSize) == 0;
 }
-
-int gravy_tcp_get_ip_from_domain(const char *domainName, char *result, size_t result_size) {
-    struct addrinfo hints, *res;
-    memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_INET; // AF_INET for IPv4, AF_INET6 for IPv6
-
-    if (getaddrinfo(domainName, NULL, &hints, &res) != 0) {
-        perror("getaddrinfo");
-        return -1; // Indicate failure
-    }
-
-    // Extract the first IP address from the result
-    struct sockaddr_in *addr = (struct sockaddr_in*)res->ai_addr;
-    const char *ip_address = inet_ntop(AF_INET, &(addr->sin_addr), result, result_size);
-
-    freeaddrinfo(res);
-
-    if (ip_address == NULL) {
-        perror("inet_ntop");
-        return -1; // Indicate failure
-    }
-
-    return 1; // Success
-}

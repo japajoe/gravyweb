@@ -1,6 +1,5 @@
 #include "Console.hpp"
 #include "DateTime.hpp"
-#include <iostream>
 #include <map>
 
 static std::map<ConsoleColor, std::string> consoleColorMap;
