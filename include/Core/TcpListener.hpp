@@ -11,13 +11,8 @@ class TcpListener
 {
 private:
     gravy_tcp_socket socket;
-    uint16_t port;
-    int32_t backlog;
+    TcpListenerSettings settings;
     SSL_CTX *sslContext;
-    void Create();
-    bool SetOptions();
-    bool Bind();
-    bool SetSSL(const TcpListenerSettings &settings);
 public:
     TcpListener(const TcpListenerSettings &settings);
     bool Start();

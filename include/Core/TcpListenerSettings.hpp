@@ -16,6 +16,11 @@ public:
     std::string certificatePath;
     std::string privateKeyPath;
 
+    TcpListenerSettings()
+    {
+
+    }
+
     TcpListenerSettings(uint16_t port)
     {
         this->port = port;

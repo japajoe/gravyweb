@@ -42,6 +42,6 @@ HttpResponse IndexController::OnGet(HttpContext *context)
     }
 
     HttpResponse response(HttpStatusCode::OK, HttpContentType(HttpMediaType::TextHtml), html);
-    response.AddHeader("Cache-Control", "max-age=60");
+    response.AddHeader("Cache-Control", "max-age=3600");
     return response;
 }

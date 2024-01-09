@@ -26,7 +26,6 @@ void Console::WriteLine(const std::string &text, ConsoleColor color)
     std::cout << text << '\n';
 #else
     InitializeConsoleColors();
-
     std::string &col = consoleColorMap[color];
     std::string &colreset = consoleColorMap[ConsoleColor::Reset];
     std::cout << col << text << colreset << '\n';
@@ -39,7 +38,6 @@ void Console::Write(const std::string &text, ConsoleColor color)
     std::cout << text;
 #else
     InitializeConsoleColors();
-
     std::string &col = consoleColorMap[color];
     std::string &colreset = consoleColorMap[ConsoleColor::Reset];
     std::cout << col << text << colreset;
@@ -52,7 +50,7 @@ void Console::WriteLog(const std::string &text)
 #ifdef _WIN32
     std::cout << timestamp << ' ' << text << '\n';
 #else
-    InitializeConsoleColors();
+    InitializeConsoleColors();    
     std::string &colTime = consoleColorMap[ConsoleColor::Green];
     std::string &colreset = consoleColorMap[ConsoleColor::Reset];
     std::cout << colTime << timestamp << colreset << ' ' << text << colreset << '\n';
