@@ -63,15 +63,9 @@ HttpResponse HttpApplication::OnRequest(HttpContext *context)
             route = routeMapper->GetRoute("/404", true);
 
             if(route)
-            {
-                std::cout << "/404 found\n";
                 return route->GetResponse(context);
-            }
             else
-            {
-                std::cout << "/404 not found\n";
                 return HttpResponse(HttpStatusCode::NotFound);
-            }
         }
     }
 }
