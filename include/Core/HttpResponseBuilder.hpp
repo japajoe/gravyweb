@@ -3,11 +3,12 @@
 
 #include <string>
 #include "HttpStatusCode.hpp"
+#include "StringBuilder.hpp"
 
 class HttpResponseBuilder
 {
 private:
-    std::string response;
+    StringBuilder sb;
 public:
     HttpResponseBuilder();
     void BeginHeader(HttpStatusCode status);
@@ -19,7 +20,7 @@ public:
     void AddString(const std::string &str);
     void EndHeader();
     void Clear();
-    const std::string &Build() const;
+    std::string ToString() const;
 };
 
 #endif

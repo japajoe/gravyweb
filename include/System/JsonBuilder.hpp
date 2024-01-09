@@ -27,6 +27,7 @@ public:
     void AddProperty(const std::string& key, bool value);
     void AddObject(const std::string &key, const JsonBuilder &obj);
     void AddArray(const std::string &key, const std::vector<std::string> &array);
+    void Clear();
     std::string ToString() const;
 };
 

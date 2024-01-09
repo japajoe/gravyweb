@@ -86,7 +86,7 @@ void HttpResponse::Send(HttpStream *stream)
 
     builder.EndHeader();
 
-    std::string header = builder.Build();
+    std::string header = builder.ToString();
 
     if(Send(stream, const_cast<char*>(header.data()), header.size()))
     {

@@ -7,50 +7,50 @@ HttpResponseBuilder::HttpResponseBuilder()
 
 void HttpResponseBuilder::BeginHeader(HttpStatusCode status)
 {
-    response = "HTTP/1.1 " + std::to_string(static_cast<int>(status)) + "\n";
+    sb.AppendLine("HTTP/1.1 " + std::to_string(static_cast<int>(status)));
 }
 
 void HttpResponseBuilder::AddHeader(const std::string &key, const std::string &value)
 {
-    response += key + ": " + value + "\n";
+    sb.AppendLine(key + ": " + value);
 }
 
 void HttpResponseBuilder::AddHeader(const std::string &key, size_t value)
 {
-    response += key + ": " + std::to_string(value) + "\n";
+    sb.AppendLine(key + ": " + std::to_string(value));
 }
 
 void HttpResponseBuilder::AddHeader(const std::string &key, ssize_t value)
 {
-    response += key + ": " + std::to_string(value) + "\n";
+    sb.AppendLine(key + ": " + std::to_string(value));
 }
 
 void HttpResponseBuilder::AddHeader(const std::string &key, float value)
 {
-    response += key + ": " + std::to_string(value) + "\n";
+    sb.AppendLine(key + ": " + std::to_string(value));
 }
 
 void HttpResponseBuilder::AddHeader(const std::string &key, double value)
 {
-    response += key + ": " + std::to_string(value) + "\n";
+    sb.AppendLine(key + ": " + std::to_string(value));
 }
 
 void HttpResponseBuilder::AddString(const std::string &str)
 {
-    response += str;
+    sb.Append(str);
 }
 
 void HttpResponseBuilder::EndHeader()
 {
-    response += "\r\n";
+    sb.Append("\r\n");
 }
 
 void HttpResponseBuilder::Clear()
 {
-    response.clear();
+    sb.Clear();
 }
 
-const std::string &HttpResponseBuilder::Build() const
+std::string HttpResponseBuilder::ToString() const
 {
-    return response;
+    return sb.ToString();
 }

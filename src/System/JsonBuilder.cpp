@@ -84,6 +84,11 @@ void JsonBuilder::AddArray(const std::string &key, const std::vector<std::string
     properties[key] = ss.str();
 }
 
+void JsonBuilder::Clear()
+{
+    properties.clear();
+}
+
 std::string JsonBuilder::ToString() const
 {
     std::stringstream ss;
