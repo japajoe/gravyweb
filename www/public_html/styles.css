@@ -1,0 +1,4 @@
+body {
+    padding-top: 80px; /* Adjust this value based on the height of your fixed navbar */
+    background-color: rgb(240, 240, 240);
+}

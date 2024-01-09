@@ -27,11 +27,6 @@ public:
 
 int APIController::numRequests = 0;
 
-APIController::APIController()
-{
-
-}
-
 HttpResponse APIController::OnPost(HttpContext *context)
 {
     numRequests++;
