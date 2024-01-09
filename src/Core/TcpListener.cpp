@@ -33,7 +33,7 @@ void TcpListener::Create()
 bool TcpListener::SetOptions()
 {
     int reuse = 1;
-    if(gravy_tcp_socket_set_option(&socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) != 0)
+    if(!gravy_tcp_socket_set_option(&socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)))
     {
         std::cout << "Failed to set socket options\n";
         return false;

@@ -4,18 +4,18 @@ static int gravy_tcp_library_initialized = 0;
 
 int gravy_tcp_library_init(void) {
     if(gravy_tcp_library_initialized)
-        return 0;
+        return 1;
 
 #ifdef _WIN32
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         fprintf(stderr, "Failed to initialize Winsock.\n");
-        return 1;
+        return -1;
     }
 #endif
 
     gravy_tcp_library_initialized = 1;
-    return 0;
+    return 1;
 }
 
 void gravy_tcp_library_uninit(void) {
@@ -55,20 +55,18 @@ int gravy_tcp_socket_accept(gravy_tcp_socket_t *serverSocket, gravy_tcp_socket_t
 
     if (clientFD != -1) {
         clientSocket->fd = clientFD;
-        return 1;
+        return -1;
     }
 
-    return 0;
+    return 1;
 }
 
-int gravy_tcp_socket_connect(gravy_tcp_socket_t *socket, const char *server, uint16_t port) {
+int gravy_tcp_socket_connect(gravy_tcp_socket_t *socket, const char *ip, uint16_t port) {
     struct sockaddr_in serverAddr = {0};
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(port);
-
-    serverAddr.sin_addr.s_addr = inet_addr(server);
-
-    return (connect(socket->fd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) != -1);
+    serverAddr.sin_addr.s_addr = inet_addr(ip);
+    return (connect(socket->fd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == 0);
 }
 
 ssize_t gravy_tcp_socket_send(gravy_tcp_socket_t *socket, const void *data, size_t size) {
@@ -89,5 +87,29 @@ void gravy_tcp_socket_close(gravy_tcp_socket_t *socket) {
 }
 
 int gravy_tcp_socket_set_option(gravy_tcp_socket_t *socket, int level, int option, const void *value, uint32_t valueSize) {
-    return setsockopt(socket->fd, level, option, value, valueSize);
+    return setsockopt(socket->fd, level, option, value, valueSize) == 0;
+}
+
+int gravy_tcp_get_ip_from_domain(const char *domainName, char *result, size_t result_size) {
+    struct addrinfo hints, *res;
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_INET; // AF_INET for IPv4, AF_INET6 for IPv6
+
+    if (getaddrinfo(domainName, NULL, &hints, &res) != 0) {
+        perror("getaddrinfo");
+        return -1; // Indicate failure
+    }
+
+    // Extract the first IP address from the result
+    struct sockaddr_in *addr = (struct sockaddr_in*)res->ai_addr;
+    const char *ip_address = inet_ntop(AF_INET, &(addr->sin_addr), result, result_size);
+
+    freeaddrinfo(res);
+
+    if (ip_address == NULL) {
+        perror("inet_ntop");
+        return -1; // Indicate failure
+    }
+
+    return 1; // Success
 }
