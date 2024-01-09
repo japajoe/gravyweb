@@ -17,7 +17,7 @@ const data = {
 };
 
 function onButtonClick() {
-    const url = 'api/v1';
+    const url = '/api/v1';
 
     fetch(url, {
         method: 'POST',

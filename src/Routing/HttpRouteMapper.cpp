@@ -1,25 +1,28 @@
 #include "HttpRouteMapper.hpp"
 
-HttpRouteMapper::HttpRouteMapper()
-{
-    
-}
-
 HttpRoute *HttpRouteMapper::GetRoute(const std::string &url, bool allowInternal)
 {
-    auto it = routes.find(url);
-
-    if(it != routes.end())
+    for (auto& route : routes) 
     {
-        if(it->second.IsInternal())
+        std::smatch match;
+        if (std::regex_match(url, match, route.first)) 
         {
-            if(allowInternal)
+            // Not sure yet about this...
+            // std::unordered_map<std::string, std::string> params;
+            // for (size_t i = 1; i < match.size(); ++i) 
+            // {
+            //     params["$" + std::to_string(i)] = match[i].str();
+            // }
+
+            if(route.second.IsInternal())
             {
-                return &it->second;
+                if(allowInternal)
+                    return &route.second;
+                return nullptr;
             }
-            return nullptr;
+
+            return &route.second;
         }
-        return &it->second;
     }
 
     return nullptr;

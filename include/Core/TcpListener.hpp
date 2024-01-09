@@ -2,10 +2,10 @@
 #define TCP_LISTENER_HPP
 
 #include "gravy_tcp.h"
-#include <openssl/ssl.h>
-#include <string>
 #include "TcpListenerSettings.hpp"
 #include "TcpClient.hpp"
+#include <openssl/ssl.h>
+#include <string>
 
 class TcpListener
 {

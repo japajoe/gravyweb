@@ -23,7 +23,7 @@ HttpResponse ExampleController::OnGet(HttpContext *context)
         html = content.GetContent();
         StringUtility::Replace(html, "$(title)", "Example - Gravy Web");
         StringUtility::Replace(html, "$(header_text)", "Example");
-        StringUtility::Replace(html, "$(head)", "<script src=\"api.js\"></script>");
+        StringUtility::Replace(html, "$(head)", "<script src=\"/api.js\"></script>");
 
         StringBuilder sb;
         sb.AppendLine("<p>Click the button to send a POST request<p>");

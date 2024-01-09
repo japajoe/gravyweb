@@ -7,7 +7,7 @@ I am not an authority in the field of web servers. This project is just for fun 
 # Features
 - HTTP request parsing
 - HTTP to HTTPS forwarding
-- Simple mechanism to create routes and controllers for different request methods
+- Create routes and controllers for different request methods (support for regular expressions too)
 - Easy to use HTTP response creation
 
 # Dependencies
