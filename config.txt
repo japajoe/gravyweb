@@ -1,5 +1,6 @@
 host localhost
 name Gravy 1.0.0
+bind_address 0.0.0.0
 public_html www/public_html
 private_html www/private_html
 certificate_path cert.pem

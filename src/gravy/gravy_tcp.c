@@ -35,10 +35,19 @@ gravy_tcp_socket_t gravy_tcp_socket_create(void) {
     return s;
 }
 
-int gravy_tcp_socket_bind(gravy_tcp_socket_t *socket, uint16_t port) {
+int gravy_tcp_socket_bind(gravy_tcp_socket_t *socket, const char *bindAddress, uint16_t port) {
     struct sockaddr_in address = {0};
     address.sin_family = AF_INET;
+
+    struct in_addr addr;
+
+    if (inet_pton(AF_INET, bindAddress, &addr) <= 0) {
+        return 0;
+    }
+
     address.sin_addr.s_addr = INADDR_ANY;
+    memcpy(&address.sin_addr.s_addr, &addr, sizeof(addr));
+    
     address.sin_port = htons(port);
 
     return (bind(socket->fd, (struct sockaddr*)&address, sizeof(address)) != -1);

@@ -11,6 +11,7 @@ public:
     static void LoadFromConfig(const HttpConfig &config);
     static std::string GetHost();
     static std::string GetName();
+    static std::string GetBindAddress();
     static std::string GetPublicHtml();
     static std::string GetPrivateHtml();
     static std::string GetCertificatePath();

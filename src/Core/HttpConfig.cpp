@@ -42,6 +42,7 @@ bool HttpConfig::LoadFromFile(const std::string &path)
     std::unordered_map<std::string,std::string> expectedKeyValuePairs;
     expectedKeyValuePairs["host"] = "localhost";
     expectedKeyValuePairs["name"] = "ServerName";
+    expectedKeyValuePairs["bind_address"] = "0.0.0.0";
     expectedKeyValuePairs["public_html"] = "www/public_html";
     expectedKeyValuePairs["private_html"] = "www/private_html";
     expectedKeyValuePairs["certificate_path"] = "cert.pem";
@@ -92,6 +93,7 @@ bool HttpConfig::LoadFromFile(const std::string &path)
 
     std::string host = keyValuePairs["host"];
     std::string name = keyValuePairs["name"];
+    std::string bindAddress = keyValuePairs["bind_address"];
     std::string publicHtml = keyValuePairs["public_html"];
     std::string privateHtml = keyValuePairs["private_html"];
     std::string certificatePath = keyValuePairs["certificate_path"];
@@ -141,6 +143,7 @@ bool HttpConfig::LoadFromFile(const std::string &path)
 
     this->host = host;
     this->name = name;
+    this->bindAddress = bindAddress;
     this->publicHtml = publicHtml;
     this->privateHtml = privateHtml;
     this->certificatePath = certificatePath;

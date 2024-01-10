@@ -75,7 +75,6 @@ class FileStream : public Stream
 {
 private:
     std::fstream file;
-
 public:
     FileStream(const std::string &filepath, FileMode mode, FileAccess access);
     ~FileStream() override;

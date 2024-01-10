@@ -30,7 +30,7 @@ extern "C" {
     GRAVY_API int gravy_tcp_library_init(void);
     GRAVY_API void gravy_tcp_library_uninit(void);
     GRAVY_API gravy_tcp_socket_t gravy_tcp_socket_create(void);
-    GRAVY_API int gravy_tcp_socket_bind(gravy_tcp_socket_t *socket, uint16_t port);
+    GRAVY_API int gravy_tcp_socket_bind(gravy_tcp_socket_t *socket, const char *bindAddress, uint16_t port);
     GRAVY_API int gravy_tcp_socket_listen(gravy_tcp_socket_t *socket, int backlog);
     GRAVY_API int gravy_tcp_socket_accept(gravy_tcp_socket_t *serverSocket, gravy_tcp_socket_t *clientSocket);
     GRAVY_API int gravy_tcp_socket_connect(gravy_tcp_socket_t *socket, const char *server, uint16_t port);

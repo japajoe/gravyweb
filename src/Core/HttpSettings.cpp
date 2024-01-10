@@ -16,6 +16,11 @@ std::string HttpSettings::GetName()
     return config.name;
 }
 
+std::string HttpSettings::GetBindAddress()
+{
+    return config.bindAddress;
+}
+
 std::string HttpSettings::GetPublicHtml()
 {
     return config.publicHtml;

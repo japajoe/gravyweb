@@ -16,6 +16,7 @@ struct HttpConfig
 public:
     std::string host;
     std::string name;
+    std::string bindAddress;
     std::string publicHtml;
     std::string privateHtml;
     std::string certificatePath;

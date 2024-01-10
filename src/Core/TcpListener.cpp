@@ -26,7 +26,7 @@ bool TcpListener::Start()
         return false;
     }
 
-    if(!gravy_tcp_socket_bind(&socket, settings.port))
+    if(!gravy_tcp_socket_bind(&socket, settings.bindAddress.c_str(), settings.port))
     {
         gravy_tcp_socket_close(&socket);
         std::cout << "Failed to bind socket on port " << settings.port << '\n';

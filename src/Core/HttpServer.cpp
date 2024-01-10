@@ -87,7 +87,7 @@ void HttpServer::SetRequestHandler(HttpRequestCallback callback)
 
 void HttpServer::HandleHttp()
 {
-    TcpListenerSettings settings(HttpSettings::GetPort());
+    TcpListenerSettings settings(HttpSettings::GetPort(), HttpSettings::GetBindAddress());
     TcpListener listener(settings);
 
     if(!listener.Start())
@@ -115,7 +115,7 @@ void HttpServer::HandleHttp()
 
 void HttpServer::HandleHttps()
 {
-    TcpListenerSettings settings(HttpSettings::GetSslPort(), HttpSettings::GetCertificatePath(), HttpSettings::GetPrivateKeyPath());
+    TcpListenerSettings settings(HttpSettings::GetSslPort(), HttpSettings::GetBindAddress(), HttpSettings::GetCertificatePath(), HttpSettings::GetPrivateKeyPath());
     TcpListener listener(settings);
 
     if(!listener.Start())
@@ -146,8 +146,6 @@ void HttpServer::HandleRequest(HttpStream stream)
     std::string header;
     int32_t headerSize = ReadHeader(&stream, header);
 
-    HttpResponse response;
-
     if(headerSize <= 0 || headerSize > HttpSettings::GetMaxHeaderSize())
     {
         if(headerSize <= 0)
@@ -156,7 +154,7 @@ void HttpServer::HandleRequest(HttpStream stream)
         }
         else
         {
-            response = HttpResponse(HttpStatusCode::RequestHeaderFieldsTooLarge);
+            HttpResponse response(HttpStatusCode::RequestHeaderFieldsTooLarge);
             response.Send(&stream);
             Console::WriteLog("[RES] " + std::to_string(static_cast<int>(response.GetStatusCode())));
         }
@@ -169,7 +167,7 @@ void HttpServer::HandleRequest(HttpStream stream)
 
     if(!HttpRequest::TryParse(header, request))
     {
-        response = HttpResponse(HttpStatusCode::BadRequest, HttpContentType(HttpMediaType::TextPlain), "Invalid HTTP request header");
+        HttpResponse response(HttpStatusCode::BadRequest, HttpContentType(HttpMediaType::TextPlain), "Invalid HTTP request header");
         response.Send(&stream);
         stream.Close();
         Console::WriteLog("[RES] " + std::to_string(static_cast<int>(response.GetStatusCode())));
@@ -184,7 +182,7 @@ void HttpServer::HandleRequest(HttpStream stream)
         {
             if(HttpSettings::GetUseHttpsForwarding())
             {
-                response = HttpResponse(HttpStatusCode::MovedPermanently);
+                HttpResponse response(HttpStatusCode::MovedPermanently);
                 response.AddHeader("Location", "https://" + HttpSettings::GetHost() + ":" + std::to_string(HttpSettings::GetSslPort()));
                 response.AddHeader("Connection", "close");
                 response.Send(&stream);
@@ -207,12 +205,12 @@ void HttpServer::HandleRequest(HttpStream stream)
     });
 
     // Wait for the asynchronous operation to complete
-    response = result.get();
-    response.Send(&stream);
+    HttpResponse resp = result.get();
+    resp.Send(&stream);
 
     stream.Close();
     
-    Console::WriteLog("[RES] " + std::to_string(static_cast<int>(response.GetStatusCode())));
+    Console::WriteLog("[RES] " + std::to_string(static_cast<int>(resp.GetStatusCode())));
 }
 
 int32_t HttpServer::ReadHeader(HttpStream *stream, std::string &header)
