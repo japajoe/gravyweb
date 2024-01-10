@@ -146,29 +146,37 @@ void HttpServer::HandleRequest(HttpStream stream)
     std::string header;
     int32_t headerSize = ReadHeader(&stream, header);
 
+    HttpResponse response;
+
     if(headerSize <= 0 || headerSize > HttpSettings::GetMaxHeaderSize())
     {
         if(headerSize <= 0)
+        {
             Console::WriteLog("Received an unexpected EOF or 0 bytes from the transport stream");
+        }
         else
-            Console::WriteLog("Request exceeds maximum header size: " + std::to_string(headerSize));
+        {
+            response = HttpResponse(HttpStatusCode::RequestHeaderFieldsTooLarge);
+            response.Send(&stream);
+            Console::WriteLog("[RES] " + std::to_string(static_cast<int>(response.GetStatusCode())));
+        }
 
         stream.Close();
         return;
     }
 
-    HttpRequest request;
+    HttpRequest request;    
 
     if(!HttpRequest::TryParse(header, request))
     {
-        Console::WriteLog("Failed to parse request");
+        response = HttpResponse(HttpStatusCode::BadRequest, HttpContentType(HttpMediaType::TextPlain), "Invalid HTTP request header");
+        response.Send(&stream);
         stream.Close();
+        Console::WriteLog("[RES] " + std::to_string(static_cast<int>(response.GetStatusCode())));
         return;
     }
 
     Console::WriteLog("[REQ] " + request.GetMethodAsString() + ": " + request.GetRawURL());
-
-    HttpResponse response;
 
     if(!stream.GetClient()->IsSecureConnection())
     {
