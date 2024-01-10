@@ -181,6 +181,7 @@ void HttpServer::HandleRequest(HttpStream stream)
                 response.AddHeader("Connection", "close");
                 response.Send(&stream);
                 stream.Close();
+                Console::WriteLog("[RES] " + std::to_string(static_cast<int>(response.GetStatusCode())));
                 return;
             }
         }
@@ -201,9 +202,9 @@ void HttpServer::HandleRequest(HttpStream stream)
     response = result.get();
     response.Send(&stream);
 
-    Console::WriteLog("[RES] " + std::to_string(static_cast<int>(response.GetStatusCode())));
-
     stream.Close();
+    
+    Console::WriteLog("[RES] " + std::to_string(static_cast<int>(response.GetStatusCode())));
 }
 
 int32_t HttpServer::ReadHeader(HttpStream *stream, std::string &header)

@@ -34,6 +34,8 @@ HttpResponse ExampleController::OnGet(HttpContext *context)
     }
     else
     {
+        std::cout << "Content not found\n";
+
         html =
         "<!DOCTYPE html>\n"
         "<html lang=\"en\">\n"

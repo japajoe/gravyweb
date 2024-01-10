@@ -3,7 +3,6 @@
 #include <sstream>
 #include <iostream>
 #include <sys/stat.h>
-
 #include <experimental/filesystem>
 #include <iostream>
 
@@ -144,16 +143,11 @@ void File::WriteAllBytes(const std::string &filepath, unsigned char *bytes, size
 size_t File::GetSize(const std::string &filepath)
 {
     return fs::file_size(filepath);
-    // struct stat stat_buf;
-    // int rc = stat(filepath.c_str(), &stat_buf);
-    // return rc == 0 ? stat_buf.st_size : -1;
 }
 
 bool File::Exists(const std::string &filepath)
 {
     return fs::exists(filepath) && fs::is_regular_file(filepath);
-    // struct stat buffer;
-    // return (stat(filepath.c_str(), &buffer) == 0);
 }
 
 std::string File::GetName(const std::string &filepath)

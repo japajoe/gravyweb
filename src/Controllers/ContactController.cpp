@@ -8,7 +8,7 @@ HttpPageContent ContactController::content;
 ContactController::ContactController()
 {
     if(content.GetContent().size() == 0)
-        content = HttpPageContent(HttpSettings::GetPrivateHtml() + "/template.html");
+        content = HttpPageContent(HttpSettings::GetPrivateHtml() + "/template.html");    
 }
 
 HttpResponse ContactController::OnGet(HttpContext *context)

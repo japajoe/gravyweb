@@ -15,14 +15,12 @@ FileInfo::FileInfo(const std::string &filePath)
 {
     try
     {
-        // Check if the file exists
         if (!File::Exists(filePath))
         {
             std::cout << "File not found: " << filePath << std::endl;
             return;
         }
 
-        // Print file information
         this->path = filePath;
         this->size = fs::file_size(filePath);
 

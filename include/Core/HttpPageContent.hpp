@@ -3,6 +3,7 @@
 
 #include <string>
 #include "FileTimeInfo.hpp"
+#include <unordered_map>
 
 class HttpPageContent
 {
