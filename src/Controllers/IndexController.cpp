@@ -3,27 +3,31 @@
 #include "StringUtility.hpp"
 #include <iostream>
 
-HttpPageContent IndexController::content;
+HttpPageContent IndexController::pageTemplate;
+HttpPageContent IndexController::pageContent;
 
 IndexController::IndexController()
 {
-    if(content.GetContent().size() == 0)
-        content = HttpPageContent(HttpSettings::GetPrivateHtml() + "/template.html");
+    if(pageTemplate.GetContent().size() == 0)
+        pageTemplate = HttpPageContent(HttpSettings::GetPrivateHtml() + "/template.html");
+
+    if(pageContent.GetContent().size() == 0)
+        pageContent = HttpPageContent(HttpSettings::GetPrivateHtml() + "/index.html");
 }
 
 HttpResponse IndexController::OnGet(HttpContext *context)
 {
-    bool result = content.Load();
+    std::string html;
 
-    std::string html = "Hello world";
-
-    if(result)
+    if(pageTemplate.Load() && pageContent.Load())
     {
-        html = content.GetContent();
+        html = pageTemplate.GetContent();
         StringUtility::Replace(html, "$(title)", "Home - Gravy Web");
-        StringUtility::Replace(html, "$(header_text)", "Home");
+        StringUtility::Replace(html, "$(header_text)", "The HTTP/1.1 Protocol");
         StringUtility::Replace(html, "$(head)", "");
-        StringUtility::Replace(html, "$(content)", "<p>Welcome to the home page</p>");
+
+        std::string content = pageContent.GetContent();
+        StringUtility::Replace(html, "$(content)", content);
     }
     else
     {

@@ -3,10 +3,17 @@
 #include <sstream>
 #include <iostream>
 #include <sys/stat.h>
-#include <experimental/filesystem>
 #include <iostream>
+#include <algorithm>
 
+// Check if the C++17 filesystem is available
+#if __has_include(<filesystem>) && __cpp_lib_filesystem >= 201703
+#include <filesystem>
+namespace fs = std::filesystem;
+#else
+#include <experimental/filesystem>
 namespace fs = std::experimental::filesystem;
+#endif
 
 const char DirectorySeparatorChar = '\\';
 const char AltDirectorySeparatorChar = '/';
@@ -148,6 +155,20 @@ size_t File::GetSize(const std::string &filepath)
 bool File::Exists(const std::string &filepath)
 {
     return fs::exists(filepath) && fs::is_regular_file(filepath);
+}
+
+bool File::IsWithinDirectory(const std::string &path, const std::string &directory)
+{
+    fs::path directoryPath = fs::absolute(directory);
+    fs::path filePath = fs::absolute(path);
+
+    auto const normRoot = fs::canonical(directoryPath);
+    auto const normChild = fs::canonical(filePath);
+    
+    auto itr = std::search(normChild.begin(), normChild.end(), 
+                           normRoot.begin(), normRoot.end());
+    
+    return itr == normChild.begin();
 }
 
 std::string File::GetName(const std::string &filepath)

@@ -2,3 +2,18 @@ body {
     padding-top: 80px; /* Adjust this value based on the height of your fixed navbar */
     background-color: rgb(240, 240, 240);
 }
+
+h1, h2, h3 {
+    color: #333;
+}
+
+/* Customize code block style */
+pre {
+    padding: 10px; /* Padding */
+    overflow-x: auto; /* Enable horizontal scrolling */
+}
+
+/* Customize inline code style */
+code {
+    color: #ffcc00; /* Text color */
+}

@@ -7,7 +7,8 @@
 class IndexController : public HttpController
 {
 private:
-    static HttpPageContent content;
+    static HttpPageContent pageTemplate;
+    static HttpPageContent pageContent;
 public:
     IndexController();
     HttpResponse OnGet(HttpContext *context) override;

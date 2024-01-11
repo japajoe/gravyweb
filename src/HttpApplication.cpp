@@ -7,11 +7,7 @@
 #include "NotFoundController.hpp"
 #include "File.hpp"
 #include "FileStream.hpp"
-#include <experimental/filesystem>
-
 #include "Console.hpp"
-
-namespace fs = std::experimental::filesystem;
 
 HttpApplication::HttpApplication(const HttpConfig &config)
 {
@@ -50,7 +46,7 @@ HttpResponse HttpApplication::OnRequest(HttpContext *context)
     {
         std::string filepath = HttpSettings::GetPublicHtml() + context->GetRequest()->GetURL();
 
-        if(File::Exists(filepath) && IsPathWithinDirectory(filepath, HttpSettings::GetPublicHtml()))
+        if(File::Exists(filepath) && File::IsWithinDirectory(filepath, HttpSettings::GetPublicHtml()))
         {
             HttpContentType contentType = HttpContentType::GetContentTypeFromFileExtension(filepath);
             std::shared_ptr<FileStream> fileStream = std::make_shared<FileStream>(filepath, FileMode::Open, FileAccess::Read);
@@ -68,18 +64,4 @@ HttpResponse HttpApplication::OnRequest(HttpContext *context)
                 return HttpResponse(HttpStatusCode::NotFound);
         }
     }
-}
-
-bool HttpApplication::IsPathWithinDirectory(const std::string &path, const std::string &directory)
-{
-    fs::path directoryPath = fs::absolute(directory);
-    fs::path filePath = fs::absolute(path);
-
-    auto const normRoot = fs::canonical(directoryPath);
-    auto const normChild = fs::canonical(filePath);
-    
-    auto itr = std::search(normChild.begin(), normChild.end(), 
-                           normRoot.begin(), normRoot.end());
-    
-    return itr == normChild.begin();
 }
