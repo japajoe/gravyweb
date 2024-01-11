@@ -27,7 +27,7 @@ HttpResponse ExampleController::OnGet(HttpContext *context)
 
         StringBuilder sb;
         sb.AppendLine("<p>Click the button to send a POST request<p>");
-        sb.AppendLine("<p><button type=\"button\" class=\"btn btn-success\" id=\"buttonSend\">Send</button></p>");
+        sb.AppendLine("<p><button class=\"btn-style\" type=\"button\" class=\"btn btn-success\" id=\"buttonSend\">Send</button></p>");
         sb.AppendLine("<p id=\"responseArea\"></p>");
 
         StringUtility::Replace(html, "$(content)", sb.ToString());
