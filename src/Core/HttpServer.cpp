@@ -18,7 +18,7 @@ static void HandleSignal(int signum)
     }
     else if (signum == SIGPIPE) 
     {
-        Console::WriteLog("Unable to write data to the transport connection: Broken pipe");
+        Console::WriteError("Unable to write data to the transport connection: Broken pipe");
     }
 }
 
@@ -28,33 +28,33 @@ HttpServer::HttpServer(const HttpConfig &config)
     {
         if(!File::Exists(config.certificatePath))
         {
-            Console::WriteLog("Certificate file not found: " + config.certificatePath);
+            Console::WriteError("Certificate file not found: " + config.certificatePath);
             exit(1);
         }
 
         if(!File::Exists(config.privateKeyPath))
         {
-            Console::WriteLog("Private key file not found: " + config.privateKeyPath);
+            Console::WriteError("Private key file not found: " + config.privateKeyPath);
             exit(1);
         }
     }
 
     if(!Directory::Exists(config.privateHtml))
     {
-        Console::WriteLog("Private html directory does not exist: " + config.privateHtml);
+        Console::WriteError("Private html directory does not exist: " + config.privateHtml);
         exit(1);
     }
 
     if(!Directory::Exists(config.publicHtml))
     {
-        Console::WriteLog("Public html directory does not exist: " + config.publicHtml);
+        Console::WriteError("Public html directory does not exist: " + config.publicHtml);
         exit(1);
     }
 
     //Needed to handle an interrupt request and shut down the library
     if (signal(SIGINT, HandleSignal) == SIG_ERR) 
     {
-        Console::WriteLog("Error setting up SIGINT handler");
+        Console::WriteError("Error setting up SIGINT handler");
         exit(1);
     }
 
@@ -62,7 +62,7 @@ HttpServer::HttpServer(const HttpConfig &config)
     //Disconnected sockets can cause this signal to be fired so we must capture it
     if (signal(SIGPIPE, HandleSignal) == SIG_ERR)
     {
-        Console::WriteLog("Error setting up SIGPIPE handler");
+        Console::WriteError("Error setting up SIGPIPE handler");
         exit(1);
     }
 
@@ -150,7 +150,7 @@ void HttpServer::HandleRequest(HttpStream stream)
     {
         if(headerSize <= 0)
         {
-            Console::WriteLog("Received an unexpected EOF or 0 bytes from the transport stream");
+            Console::WriteError("Received an unexpected EOF or 0 bytes from the transport stream");
         }
         else
         {

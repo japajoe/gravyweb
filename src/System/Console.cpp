@@ -5,6 +5,7 @@
 
 static std::map<ConsoleColor, std::string> consoleColorMap;
 LogFunction Console::logFunction = nullptr;
+LogFunction Console::errorFunction = nullptr;
 
 static void InitializeConsoleColors()
 {
@@ -27,9 +28,7 @@ void Console::WriteLine(const std::string &text, ConsoleColor color)
     std::cout << text << '\n';
 #else
     InitializeConsoleColors();
-    std::string &col = consoleColorMap[color];
-    std::string &colreset = consoleColorMap[ConsoleColor::Reset];
-    std::cout << col << text << colreset << '\n';
+    std::cout << consoleColorMap[color] << text << consoleColorMap[ConsoleColor::Reset] << '\n';
 #endif
 }
 
@@ -39,9 +38,7 @@ void Console::Write(const std::string &text, ConsoleColor color)
     std::cout << text;
 #else
     InitializeConsoleColors();
-    std::string &col = consoleColorMap[color];
-    std::string &colreset = consoleColorMap[ConsoleColor::Reset];
-    std::cout << col << text << colreset;
+    std::cout << consoleColorMap[color] << text << consoleColorMap[ConsoleColor::Reset];
 #endif
 }
 
@@ -58,13 +55,33 @@ void Console::WriteLog(const std::string &text)
     std::cout << timestamp << ' ' << text << '\n';
 #else
     InitializeConsoleColors();    
-    std::string &colTime = consoleColorMap[ConsoleColor::Green];
-    std::string &colreset = consoleColorMap[ConsoleColor::Reset];
-    std::cout << colTime << timestamp << colreset << ' ' << text << colreset << '\n';
+    std::cout << consoleColorMap[ConsoleColor::Green] << timestamp << consoleColorMap[ConsoleColor::Reset] << ' ' << text << '\n';
+#endif
+}
+
+void Console::WriteError(const std::string &text)
+{
+    if(errorFunction)
+    {
+        errorFunction(text);
+        return;
+    }
+
+    std::string timestamp = DateTime::Now().FormattedTimestamp();
+#ifdef _WIN32
+    std::cout << timestamp << ' ' << text << '\n';
+#else
+    InitializeConsoleColors();    
+    std::cout << consoleColorMap[ConsoleColor::Green] << timestamp << consoleColorMap[ConsoleColor::Red] << ' ' << text << consoleColorMap[ConsoleColor::Reset] << '\n';
 #endif
 }
 
 void Console::SetLogFunction(const LogFunction &logFunction)
 {
     Console::logFunction = logFunction;
+}
+
+void Console::SetErrorFunction(const LogFunction &errorFunction)
+{
+    Console::errorFunction = errorFunction;
 }

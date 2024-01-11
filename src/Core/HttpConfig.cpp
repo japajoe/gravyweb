@@ -25,8 +25,11 @@ bool HttpConfig::LoadFromFile(const std::string &path)
 
     //Opens the file if it exists
     fp = fopen(path.c_str(), "r");
-    if (fp == nullptr)
+    if (fp == nullptr) 
+    {
+        Console::WriteError("Failed to open: " + path);
         return false;
+    }
 
 
     //Add all lines of the file into a vector
@@ -95,7 +98,7 @@ bool HttpConfig::LoadFromFile(const std::string &path)
         //Check if given key is valid
         if(expectedKeyValuePairs.count(key) == 0)
         {
-            Console::WriteLog("Unexpected key in config: " + key);
+            Console::WriteError("Unexpected key in config: " + key);
             return false;
         }
 
@@ -104,7 +107,7 @@ bool HttpConfig::LoadFromFile(const std::string &path)
 
     if(keyValuePairs.size() != expectedKeyValuePairs.size())
     {
-        Console::WriteLog("Config file is incomplete");
+        Console::WriteError("Config file is incomplete");
         return false;
     }
 
@@ -124,37 +127,37 @@ bool HttpConfig::LoadFromFile(const std::string &path)
     
     if(!ParseNumber(keyValuePairs["port"], port))
     {
-        Console::WriteLog("Failed to parse port");
+        Console::WriteError("Failed to parse port");
         return false;
     }
     
     if(!ParseNumber(keyValuePairs["ssl_port"], sslPort))
     {
-        Console::WriteLog("Failed to parse ssl_port");
+        Console::WriteError("Failed to parse ssl_port");
         return false;
     }
 
     if(!ParseBool(keyValuePairs["use_https"], useHttps))
     {
-        Console::WriteLog("Failed to parse use_https");
+        Console::WriteError("Failed to parse use_https");
         return false;
     }
 
     if(!ParseBool(keyValuePairs["use_https_forwarding"], useHttpsForwarding))
     {
-        Console::WriteLog("Failed to parse use_https_forwarding use_https");
+        Console::WriteError("Failed to parse use_https_forwarding use_https");
         return false;
     }
     
     if(!ParseNumber(keyValuePairs["max_header_size"], maxHeaderSize))
     {
-        Console::WriteLog("Failed to parse max_header_size");
+        Console::WriteError("Failed to parse max_header_size");
         return false;
     }
     
     if(!ParseNumber(keyValuePairs["buffer_size"], bufferSize))
     {
-        Console::WriteLog("Failed to parse buffer_size");
+        Console::WriteError("Failed to parse buffer_size");
         return false;
     }
 
