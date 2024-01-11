@@ -1,9 +1,9 @@
 #include "HttpConfig.hpp"
-
-
-#include <iostream>
+#include "Console.hpp"
+#include "StringUtility.hpp"
 #include <cstdint>
 #include <string>
+#include <regex>
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
@@ -30,14 +30,32 @@ bool HttpConfig::LoadFromFile(const std::string &path)
 
 
     //Add all lines of the file into a vector
-    std::vector<std::string> lines;
+    std::vector<std::string> inputLines;
     while ((read = getline(&line, &len, fp)) != -1) 
     {
-        lines.push_back(std::string(line));
+        inputLines.push_back(std::string(line));
     }
 
     //Close the file
     fclose(fp);
+
+    std::vector<std::string> lines;
+
+    //Strip comments
+    for (const auto& line : inputLines) {
+        // Use regex to remove comments (lines starting with # or ; and anything after # or ;)
+        std::string processedLine = std::regex_replace(line, std::regex("[#;].*"), "");
+        
+        // Remove leading and trailing whitespaces
+        processedLine = std::regex_replace(processedLine, std::regex("^\\s+|\\s+$"), "");
+
+        // Add the processed line to the result vector if it's not empty
+        if (!processedLine.empty()) {
+            processedLine = StringUtility::TrimEnd(processedLine);
+            lines.push_back(processedLine);
+            std::cout << processedLine << '\n';
+        }
+    }
 
     std::unordered_map<std::string,std::string> expectedKeyValuePairs;
     expectedKeyValuePairs["host"] = "localhost";
@@ -78,7 +96,7 @@ bool HttpConfig::LoadFromFile(const std::string &path)
         //Check if given key is valid
         if(expectedKeyValuePairs.count(key) == 0)
         {
-            std::cout << "Unexpected key in config: " << key << '\n';
+            Console::WriteLog("Unexpected key in config: " + key);
             return false;
         }
 
@@ -87,7 +105,7 @@ bool HttpConfig::LoadFromFile(const std::string &path)
 
     if(keyValuePairs.size() != expectedKeyValuePairs.size())
     {
-        std::cout << "Config file is incomplete\n";
+        Console::WriteLog("Config file is incomplete");
         return false;
     }
 
@@ -107,37 +125,37 @@ bool HttpConfig::LoadFromFile(const std::string &path)
     
     if(!ParseNumber(keyValuePairs["port"], port))
     {
-        std::cout << "Failed to parse port\n";
+        Console::WriteLog("Failed to parse port");
         return false;
     }
     
     if(!ParseNumber(keyValuePairs["ssl_port"], sslPort))
     {
-        std::cout << "Failed to parse ssl_port\n";
+        Console::WriteLog("Failed to parse ssl_port");
         return false;
     }
 
     if(!ParseBool(keyValuePairs["use_https"], useHttps))
     {
-        std::cout << "Failed to parse use_https\n";
+        Console::WriteLog("Failed to parse use_https");
         return false;
     }
 
     if(!ParseBool(keyValuePairs["use_https_forwarding"], useHttpsForwarding))
     {
-        std::cout << "Failed to parse use_https_forwarding use_https\n";
+        Console::WriteLog("Failed to parse use_https_forwarding use_https");
         return false;
     }
     
     if(!ParseNumber(keyValuePairs["max_header_size"], maxHeaderSize))
     {
-        std::cout << "Failed to parse max_header_size\n";
+        Console::WriteLog("Failed to parse max_header_size");
         return false;
     }
     
     if(!ParseNumber(keyValuePairs["buffer_size"], bufferSize))
     {
-        std::cout << "Failed to parse buffer_size\n";
+        Console::WriteLog("Failed to parse buffer_size");
         return false;
     }
 

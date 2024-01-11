@@ -1,5 +1,5 @@
 #include "TcpListener.hpp"
-#include <iostream>
+#include "Console.hpp"
 
 TcpListener::TcpListener(const TcpListenerSettings &settings)
 {
@@ -12,7 +12,7 @@ bool TcpListener::Start()
 {
     if(socket.fd >= 0)
     {
-        std::cout << "Socket already created\n";
+        Console::WriteLog("Socket already created");
         return false;
     }
 
@@ -22,14 +22,14 @@ bool TcpListener::Start()
     if(!gravy_tcp_socket_set_option(&socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)))
     {
         gravy_tcp_socket_close(&socket);
-        std::cout << "Failed to set socket options\n";
+        Console::WriteLog("Failed to set socket options");
         return false;
     }
 
     if(!gravy_tcp_socket_bind(&socket, settings.bindAddress.c_str(), settings.port))
     {
         gravy_tcp_socket_close(&socket);
-        std::cout << "Failed to bind socket on port " << settings.port << '\n';
+        Console::WriteLog("Failed to bind socket on port " + std::to_string(settings.port));
         return false;
     }
     
@@ -44,7 +44,7 @@ bool TcpListener::Start()
             gravy_tcp_socket_close(&socket);
             SSL_CTX_free(sslContext);
             sslContext = nullptr;
-            std::cout << "Failed to use certificate file\n";
+            Console::WriteLog("Failed to use certificate file");
             return false;
         }
 
@@ -53,7 +53,7 @@ bool TcpListener::Start()
             gravy_tcp_socket_close(&socket);
             SSL_CTX_free(sslContext);
             sslContext = nullptr;
-            std::cout << "Failed to use private key file\n";
+            Console::WriteLog("Failed to use private key file");
             return false;
         }
 
@@ -62,7 +62,7 @@ bool TcpListener::Start()
             gravy_tcp_socket_close(&socket);
             SSL_CTX_free(sslContext);
             sslContext = nullptr;
-            std::cout << "Failed to check private key\n";
+            Console::WriteLog("Failed to check private key");
             return false;
         }
     }
@@ -70,7 +70,7 @@ bool TcpListener::Start()
     if(!gravy_tcp_socket_listen(&socket, settings.backlog))
     {
         gravy_tcp_socket_close(&socket);
-        std::cout << "Failed to start listening\n";
+        Console::WriteLog("Failed to start listening");
         return false;
     }
 

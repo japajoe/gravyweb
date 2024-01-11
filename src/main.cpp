@@ -4,7 +4,7 @@ int main(int argc, char **argv)
 {
     HttpConfig config;
     
-    if(!config.LoadFromFile("config.txt"))
+    if(!config.LoadFromFile("config.ini"))
     {
         return 1;
     }

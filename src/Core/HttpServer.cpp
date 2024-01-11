@@ -5,9 +5,9 @@
 #include "MemoryStream.hpp"
 #include "StringUtility.hpp"
 #include "Console.hpp"
+#include <signal.h>
 #include <memory>
 #include <future>
-#include <signal.h>
 
 static void HandleSignal(int signum)
 {
@@ -18,7 +18,7 @@ static void HandleSignal(int signum)
     }
     else if (signum == SIGPIPE) 
     {
-        std::cout << "Unable to write data to the transport connection: Broken pipe\n";
+        Console::WriteLog("Unable to write data to the transport connection: Broken pipe");
     }
 }
 
@@ -28,33 +28,33 @@ HttpServer::HttpServer(const HttpConfig &config)
     {
         if(!File::Exists(config.certificatePath))
         {
-            std::cout << "Certificate file not found: " << config.certificatePath << '\n';
+            Console::WriteLog("Certificate file not found: " + config.certificatePath);
             exit(1);
         }
 
         if(!File::Exists(config.privateKeyPath))
         {
-            std::cout << "Private key file not found: " << config.privateKeyPath << '\n';
+            Console::WriteLog("Private key file not found: " + config.privateKeyPath);
             exit(1);
         }
     }
 
     if(!Directory::Exists(config.privateHtml))
     {
-        std::cout << "Private html directory does not exist: " << config.privateHtml << '\n';
+        Console::WriteLog("Private html directory does not exist: " + config.privateHtml);
         exit(1);
     }
 
     if(!Directory::Exists(config.publicHtml))
     {
-        std::cout << "Public html directory does not exist: " << config.publicHtml << '\n';
+        Console::WriteLog("Public html directory does not exist: " + config.publicHtml);
         exit(1);
     }
 
     //Needed to handle an interrupt request and shut down the library
     if (signal(SIGINT, HandleSignal) == SIG_ERR) 
     {
-        std::cout << "Error setting up SIGINT handler\n";
+        Console::WriteLog("Error setting up SIGINT handler");
         exit(1);
     }
 
@@ -62,7 +62,7 @@ HttpServer::HttpServer(const HttpConfig &config)
     //Disconnected sockets can cause this signal to be fired so we must capture it
     if (signal(SIGPIPE, HandleSignal) == SIG_ERR)
     {
-        std::cout << "Error setting up SIGPIPE handler\n";
+        Console::WriteLog("Error setting up SIGPIPE handler");
         exit(1);
     }
 

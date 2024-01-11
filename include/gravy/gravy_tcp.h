@@ -16,6 +16,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <openssl/ssl.h>
+#include <netdb.h>
 #endif
 
 typedef struct gravy_tcp_socket {
@@ -38,6 +39,7 @@ extern "C" {
     GRAVY_API ssize_t gravy_tcp_socket_receive(gravy_tcp_socket_t *socket, void *buffer, size_t size);
     GRAVY_API void gravy_tcp_socket_close(gravy_tcp_socket_t *socket);
     GRAVY_API int gravy_tcp_socket_set_option(gravy_tcp_socket_t *socket, int level, int option, const void *value, uint32_t valueSize);
+    GRAVY_API int gravy_tcp_get_ip_address(const char *hostname, char *ip_buffer, size_t buffer_size);
 #ifdef __cplusplus
 }
 #endif

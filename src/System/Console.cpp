@@ -1,8 +1,10 @@
 #include "Console.hpp"
 #include "DateTime.hpp"
+#include <iostream>
 #include <map>
 
 static std::map<ConsoleColor, std::string> consoleColorMap;
+LogFunction Console::logFunction = nullptr;
 
 static void InitializeConsoleColors()
 {
@@ -45,6 +47,12 @@ void Console::Write(const std::string &text, ConsoleColor color)
 
 void Console::WriteLog(const std::string &text)
 {
+    if(logFunction)
+    {
+        logFunction(text);
+        return;
+    }
+
     std::string timestamp = DateTime::Now().FormattedTimestamp();
 #ifdef _WIN32
     std::cout << timestamp << ' ' << text << '\n';
@@ -54,4 +62,9 @@ void Console::WriteLog(const std::string &text)
     std::string &colreset = consoleColorMap[ConsoleColor::Reset];
     std::cout << colTime << timestamp << colreset << ' ' << text << colreset << '\n';
 #endif
+}
+
+void Console::SetLogFunction(const LogFunction &logFunction)
+{
+    Console::logFunction = logFunction;
 }

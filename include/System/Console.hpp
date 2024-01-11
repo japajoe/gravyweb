@@ -2,7 +2,9 @@
 #define CONSOLE_HPP
 
 #include <string>
-#include <iostream>
+#include <functional>
+
+using LogFunction = std::function<void(const std::string&)>;
 
 enum class ConsoleColor
 {
@@ -18,10 +20,13 @@ enum class ConsoleColor
 
 class Console
 {
+private:
+    static LogFunction logFunction;
 public:
     static void WriteLine(const std::string &text, ConsoleColor color = ConsoleColor::White);
     static void Write(const std::string &text, ConsoleColor color = ConsoleColor::White);
     static void WriteLog(const std::string &text);
+    static void SetLogFunction(const LogFunction &logFunction);
 };
 
 #endif
