@@ -53,7 +53,6 @@ bool HttpConfig::LoadFromFile(const std::string &path)
         if (!processedLine.empty()) {
             processedLine = StringUtility::TrimEnd(processedLine);
             lines.push_back(processedLine);
-            std::cout << processedLine << '\n';
         }
     }
 
