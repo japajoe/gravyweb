@@ -31,7 +31,7 @@ ssize_t TcpClient::Send(unsigned char *buffer, size_t offset, size_t count)
         return gravy_tcp_socket_send(&socket, &buffer[offset], count);
 }
 
-bool TcpClient::Connect(const std::string &host, uint16_t port, bool secure)
+bool TcpClient::Connect(const TcpConnectionInfo &connectionInfo)
 {
     if(socket.fd >= 0 || sslContext != nullptr || ssl != nullptr)
         return false;
@@ -41,17 +41,15 @@ bool TcpClient::Connect(const std::string &host, uint16_t port, bool secure)
     if(socket.fd < 0)
         return false;
 
-    if(!gravy_tcp_socket_connect(&socket, host.c_str(), port))
+    if(!gravy_tcp_socket_connect(&socket, connectionInfo.ip.c_str(), connectionInfo.port))
     {
         std::cout << "Failed to connect\n";
         Close();
         return false;
     }
 
-    if(secure)
+    if(connectionInfo.secure)
     {
-        //OpenSSL_add_all_algorithms();
-
         sslContext = SSL_CTX_new(TLS_method());
         
         if (sslContext == nullptr)
@@ -60,16 +58,11 @@ bool TcpClient::Connect(const std::string &host, uint16_t port, bool secure)
             return false;
         }
 
-        // // Set the cipher list
-        // if (SSL_CTX_set_cipher_list(sslContext, "AES256-SHA") != 1) {
-        //     fprintf(stderr, "Error setting cipher list\n");
-        //     ERR_print_errors_fp(stderr);
-        //     Close();
-        //     return false;
-        // }
-
         ssl = SSL_new(sslContext);
         SSL_set_fd(ssl, socket.fd);
+
+        
+        SSL_ctrl(ssl, SSL_CTRL_SET_TLSEXT_HOSTNAME, TLSEXT_NAMETYPE_host_name, (void*)connectionInfo.hostName.c_str());
 
         if (SSL_connect(ssl) != 1) 
         {
