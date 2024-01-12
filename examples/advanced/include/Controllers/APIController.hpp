@@ -9,6 +9,7 @@ class APIController : public HttpController
 private:
     static int numRequests;
 public:
+    APIController();
     HttpResponse OnPost(HttpContext *context) override;
 };
 

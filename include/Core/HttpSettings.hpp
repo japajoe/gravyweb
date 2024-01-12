@@ -21,6 +21,7 @@ public:
     static bool GetUseHttps();
     static bool GetUseHttpsForwarding();
     static uint32_t GetMaxHeaderSize();
+    static uint64_t GetMaxRequestBodySize();
     static uint32_t GetBufferSize();
 };
 

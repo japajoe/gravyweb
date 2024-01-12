@@ -39,29 +39,25 @@ HttpResponse HttpApplication::OnRequest(HttpContext *context)
     HttpRoute *route = routeMapper->GetRoute(context->GetRequest()->GetURL(), false);
 
     if(route)
-    {
         return route->GetResponse(context);
+
+    std::string filepath = HttpSettings::GetPublicHtml() + context->GetRequest()->GetURL();
+
+    if(File::Exists(filepath) && File::IsWithinDirectory(filepath, HttpSettings::GetPublicHtml()))
+    {
+        HttpContentType contentType = HttpContentType::GetContentTypeFromFileExtension(filepath);
+        std::shared_ptr<FileStream> fileStream = std::make_shared<FileStream>(filepath, FileMode::Open, FileAccess::Read);
+        HttpResponse response(HttpStatusCode::OK, contentType, fileStream);
+        response.AddHeader("Cache-Control", "max-age=3600");
+        return response;
     }
     else
     {
-        std::string filepath = HttpSettings::GetPublicHtml() + context->GetRequest()->GetURL();
+        route = routeMapper->GetRoute("/404", true);
 
-        if(File::Exists(filepath) && File::IsWithinDirectory(filepath, HttpSettings::GetPublicHtml()))
-        {
-            HttpContentType contentType = HttpContentType::GetContentTypeFromFileExtension(filepath);
-            std::shared_ptr<FileStream> fileStream = std::make_shared<FileStream>(filepath, FileMode::Open, FileAccess::Read);
-            HttpResponse response(HttpStatusCode::OK, contentType, fileStream);
-            response.AddHeader("Cache-Control", "max-age=3600");
-            return response;
-        }
+        if(route)
+            return route->GetResponse(context);
         else
-        {
-            route = routeMapper->GetRoute("/404", true);
-
-            if(route)
-                return route->GetResponse(context);
-            else
-                return HttpResponse(HttpStatusCode::NotFound);
-        }
+            return HttpResponse(HttpStatusCode::NotFound);
     }
 }

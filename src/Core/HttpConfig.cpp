@@ -72,6 +72,7 @@ bool HttpConfig::LoadFromFile(const std::string &path)
     expectedKeyValuePairs["use_https"] = "true";
     expectedKeyValuePairs["use_https_forwarding"] = "true";
     expectedKeyValuePairs["max_header_size"] = "8192";
+    expectedKeyValuePairs["max_request_body_size"] = "8192";
     expectedKeyValuePairs["buffer_size"] = "4096";
 
     std::string separator = " ";
@@ -123,6 +124,7 @@ bool HttpConfig::LoadFromFile(const std::string &path)
     bool useHttps = false;
     bool useHttpsForwarding = false;
     uint32_t maxHeaderSize = 8192;
+    uint64_t maxRequestBodySize = 8192;
     uint32_t bufferSize = 4096;
     
     if(!ParseNumber(keyValuePairs["port"], port))
@@ -154,6 +156,12 @@ bool HttpConfig::LoadFromFile(const std::string &path)
         Console::WriteError("Failed to parse max_header_size");
         return false;
     }
+
+    if(!ParseNumber(keyValuePairs["max_request_body_size"], maxRequestBodySize))
+    {
+        Console::WriteError("Failed to parse max_request_body_size");
+        return false;
+    }
     
     if(!ParseNumber(keyValuePairs["buffer_size"], bufferSize))
     {
@@ -173,6 +181,7 @@ bool HttpConfig::LoadFromFile(const std::string &path)
     this->useHttps = useHttps;
     this->useHttpsForwarding = useHttpsForwarding;
     this->maxHeaderSize = maxHeaderSize;
+    this->maxRequestBodySize = maxRequestBodySize;
     this->bufferSize = bufferSize;
 
     return true;

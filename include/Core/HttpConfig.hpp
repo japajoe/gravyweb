@@ -26,6 +26,7 @@ public:
     bool useHttps;
     bool useHttpsForwarding;
     uint32_t maxHeaderSize;
+    uint64_t maxRequestBodySize;
     uint32_t bufferSize;
     HttpConfig();
     bool LoadFromFile(const std::string &path);

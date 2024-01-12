@@ -1,5 +1,5 @@
 #include "HttpRoute.hpp"
-#include <iostream>
+#include "HttpSettings.hpp"
 
 HttpRoute::HttpRoute()
 {
@@ -27,41 +27,40 @@ HttpResponse HttpRoute::GetResponse(HttpContext *context)
 {
     auto controller = route();
 
-    HttpResponse response;
+    size_t maxRequestBodySize = controller->GetMaxRequestBodySize();
+
+    if(maxRequestBodySize > 0 && maxRequestBodySize != HttpSettings::GetMaxRequestBodySize())
+    {
+        if(context->GetRequest()->GetContentLength() > maxRequestBodySize)
+            return HttpResponse(HttpStatusCode::PayloadTooLarge);
+    }
+    else
+    {
+        if(context->GetRequest()->GetContentLength() > HttpSettings::GetMaxRequestBodySize())
+            return HttpResponse(HttpStatusCode::PayloadTooLarge);
+    }
 
     switch(context->GetRequest()->GetMethod())
     {
         case HttpRequestMethod::Get:
-            response = controller->OnGet(context);
-            break;
+            return controller->OnGet(context);
         case HttpRequestMethod::Post:
-            response = controller->OnPost(context);
-            break;
+            return controller->OnPost(context);
         case HttpRequestMethod::Connect:
-            response = controller->OnConnect(context);
-            break;
+            return controller->OnConnect(context);
         case HttpRequestMethod::Head:
-            response = controller->OnHead(context);
-            break;
+            return controller->OnHead(context);
         case HttpRequestMethod::Options:
-            response = controller->OnOptions(context);
-            break;
+            return controller->OnOptions(context);
         case HttpRequestMethod::Patch:
-            response = controller->OnPatch(context);
-            break;
+            return controller->OnPatch(context);
         case HttpRequestMethod::Delete:
-            response = controller->OnDelete(context);
-            break;
+            return controller->OnDelete(context);
         case HttpRequestMethod::Put:
-            response = controller->OnPut(context);
-            break;
+            return controller->OnPut(context);
         case HttpRequestMethod::Trace:
-            response = controller->OnTrace(context);
-            break;
-        case HttpRequestMethod::Unknown:
-            response = HttpResponse(HttpStatusCode::NotImplemented);
-            break;
+            return controller->OnTrace(context);
+        default:
+            return HttpResponse(HttpStatusCode::NotImplemented);
     }
-
-    return response;
 }

@@ -27,15 +27,21 @@ public:
 
 int APIController::numRequests = 0;
 
+APIController::APIController()
+{
+    //This overrides HttpSettings::GetMaxRequestBodySize()
+    //This will only affect this controller
+    SetMaxRequestBodySize(128);
+}
+
 HttpResponse APIController::OnPost(HttpContext *context)
 {
     numRequests++;
 
     HttpRequest *request = context->GetRequest();
-    uint64_t contentSize = request->GetContentLength();
     HttpMediaType mediaType = request->GetContentType().GetMediaType();
 
-    if(contentSize > 0 && mediaType == HttpMediaType::ApplicationJson)
+    if(mediaType == HttpMediaType::ApplicationJson)
     {
         std::string json = ReadContentAsString(context);    
         Console::WriteLog("Received JSON: " + json);    

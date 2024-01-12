@@ -66,6 +66,11 @@ uint32_t HttpSettings::GetMaxHeaderSize()
     return config.maxHeaderSize;
 }
 
+uint64_t HttpSettings::GetMaxRequestBodySize()
+{
+    return config.maxRequestBodySize;
+}
+
 uint32_t HttpSettings::GetBufferSize()
 {
     return config.bufferSize;

@@ -60,6 +60,16 @@ HttpResponse HttpController::OnUnknown(HttpContext *context)
     return HttpResponse(HttpStatusCode::MethodNotAllowed, HttpContentType(HttpMediaType::TextHtml));
 }
 
+void HttpController::SetMaxRequestBodySize(uint64_t size)
+{
+    maxRequestBodySize = size;
+}
+
+uint64_t HttpController::GetMaxRequestBodySize() const
+{
+    return maxRequestBodySize;
+}
+
 std::string HttpController::ReadContentAsString(HttpContext *context)
 {
     unsigned char buffer[1024];

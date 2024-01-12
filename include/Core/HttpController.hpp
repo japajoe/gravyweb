@@ -19,8 +19,12 @@ public:
     virtual HttpResponse OnPut(HttpContext *context);
     virtual HttpResponse OnTrace(HttpContext *context);
     virtual HttpResponse OnUnknown(HttpContext *context);
+    void SetMaxRequestBodySize(uint64_t size);
+    uint64_t GetMaxRequestBodySize() const;
 protected:
     std::string ReadContentAsString(HttpContext *context);
+private:
+    uint64_t maxRequestBodySize = 0;
 };
 
 #endif
