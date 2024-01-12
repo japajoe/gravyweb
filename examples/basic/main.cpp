@@ -1,5 +1,4 @@
 #include "HttpServer.hpp"
-#include "Console.hpp"
 
 HttpResponse OnHttpRequest(HttpContext *context);
 
