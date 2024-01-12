@@ -1,6 +1,7 @@
 #include "HttpClient.hpp"
 #include "StringUtility.hpp"
-#include <iostream>
+#include "URI.hpp"
+#include "Console.hpp"
 #include <regex>
 
 void HttpClient::SetResponseHandler(const HttpClientResponseHandler &handler)
@@ -8,97 +9,84 @@ void HttpClient::SetResponseHandler(const HttpClientResponseHandler &handler)
     this->responseHandler = handler;
 }
 
-void HttpClient::Get(const std::string &url)
+bool HttpClient::Get(const std::string &url)
 {
-    std::string uri = StringUtility::TrimStart(url);
-    std::string service;
-
-    if(StringUtility::StartsWith(uri, "http://"))
+    if(!responseHandler)
     {
-        StringUtility::Replace(uri, "http://", "");
-        service = "http://";
+        Console::WriteError("Response handler not assigned");
+        return false;
     }
-    else if(StringUtility::StartsWith(uri, "https://"))
-    {
-        StringUtility::Replace(uri, "https://", "");
-        service = "https://";
-    }
+    URI uri(url);
 
     std::string path;
+    std::string host;
+    std::string scheme;
 
-    if(!ExtractPathFromUrl(url, path))
+    if(!uri.GetHost(host))
     {
-        std::cout << "Failed to extract path\n";
-        return;
+        Console::WriteError("Failed to get host from URL");
+        return false;
     }
 
-    if(!ExtractHostnameFromUrl(url, uri))
+    if(!uri.GetPath(path))
     {
-        std::cout << "Failed to extract host name\n";
-        return;        
+        Console::WriteError("Failed to get path from URL");
+        return false;
+    }
+
+    if(!uri.GetScheme(scheme))
+    {
+        Console::WriteError("Failed to get scheme from URL");
+        return false;
+    }
+
+    if(path.size() == 0)
+        path = "/";
+
+    scheme += "://";
+
+    TcpConnectionInfo info;
+
+    if(!TcpConnectionInfo::CreateFromURL(scheme + host, info))
+    {
+        Console::WriteError("Failed to create connection info from URL");
+        return false;
+    }
+    
+    if(!client.Connect(info))
+    {
+        return false;
     }
 
     std::string request = 
     "GET " + path + " HTTP/1.1\r\n"
-    "Host: " + uri + "\r\n"
+    "Host: " + host + "\r\n"
     "Accept: */*\r\n"
     "Connection: close\r\n\r\n";
 
-    TcpConnectionInfo info;
-    if(!TcpConnectionInfo::CreateFromURL(service + uri, info))
-        return;
-    
-    if(!client.Connect(info))
-    {
-        return;
-    }
-
     unsigned char *pRequest = reinterpret_cast<unsigned char*>(const_cast<char*>(request.c_str()));
+
+    size_t bytesToSend = request.size();
+    size_t bytesSent = 0;
+
+    while(bytesSent < bytesToSend)
+    {
+        size_t numBytes = client.Send(&pRequest[bytesSent], 0, 1024);
+        if(numBytes > 0)
+            bytesSent += numBytes;
+    }
 
     unsigned char buffer[1024];
     memset(buffer, 0, 1024);
-    
-    if(client.Send(pRequest, 0, request.size()) > 0)
+
+    ssize_t bytesReceived = 0;
+    while ((bytesReceived = client.Receive(buffer, 0, 1023)) > 0) 
     {
-        ssize_t received_bytes;
-        while ((received_bytes = client.Receive(buffer, 0, 1023)) > 0) 
-        {
-            if(responseHandler)
-                responseHandler(buffer, received_bytes);
-        }
+        if(responseHandler)
+            responseHandler(buffer, bytesReceived);
     }
 
     client.Close();
-}
 
-bool HttpClient::ExtractPathFromUrl(const std::string& url, std::string &path)
-{
-    std::regex urlPattern("https?://[^/]+(/.*)?");
-
-    std::smatch match;
-
-    if (std::regex_match(url, match, urlPattern)) 
-    {
-        path = match[1].str().empty() ? "/" : match[1].str();
-        return true;
-    }
-    else 
-    {
-        return false;
-    }
-}
-
-bool HttpClient::ExtractHostnameFromUrl(const std::string& url, std::string &hostName)
-{
-    std::regex urlPattern("https?://([^/]+)(/.*)?");
-    std::smatch match;
-
-    if (std::regex_match(url, match, urlPattern)) {
-        hostName = match[1].str();
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return true;
 }

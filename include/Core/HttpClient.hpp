@@ -12,10 +12,8 @@ class HttpClient
 private:
     TcpClient client;
     HttpClientResponseHandler responseHandler;
-    static bool ExtractPathFromUrl(const std::string& url, std::string &path);
-    static bool ExtractHostnameFromUrl(const std::string& url, std::string &hostName);
 public:
-    void Get(const std::string &url);
+    bool Get(const std::string &url);
     void SetResponseHandler(const HttpClientResponseHandler &handler);
 };
 
