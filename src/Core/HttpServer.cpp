@@ -5,22 +5,9 @@
 #include "MemoryStream.hpp"
 #include "StringUtility.hpp"
 #include "Console.hpp"
-#include <signal.h>
+#include "Signal.hpp"
 #include <memory>
 #include <future>
-
-static void HandleSignal(int signum)
-{
-    if(signum == SIGINT)
-    {
-        gravy_tcp_library_uninit();
-        exit(signum);
-    }
-    else if (signum == SIGPIPE) 
-    {
-        Console::WriteError("Unable to write data to the transport connection: Broken pipe");
-    }
-}
 
 HttpServer::HttpServer(const HttpConfig &config)
 {
@@ -51,20 +38,8 @@ HttpServer::HttpServer(const HttpConfig &config)
         exit(1);
     }
 
-    //Needed to handle an interrupt request and shut down the library
-    if (signal(SIGINT, HandleSignal) == SIG_ERR) 
-    {
-        Console::WriteError("Error setting up SIGINT handler");
-        exit(1);
-    }
-
-    //Needed to handle a broken pipe signal, otherwise the program just closes
-    //Disconnected sockets can cause this signal to be fired so we must capture it
-    if (signal(SIGPIPE, HandleSignal) == SIG_ERR)
-    {
-        Console::WriteError("Error setting up SIGPIPE handler");
-        exit(1);
-    }
+    //Sets up SIGINT and SIGPIPE handlers
+    Signal::RegisterHandler();
 
     gravy_tcp_library_init();
 

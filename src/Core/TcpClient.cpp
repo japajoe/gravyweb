@@ -108,3 +108,18 @@ bool TcpClient::IsConnected() const
 {
     return socket.fd >= 0;
 }
+
+std::string TcpClient::GetIP() const
+{
+    char ipString[INET_ADDRSTRLEN];  // or INET6_ADDRSTRLEN for IPv6
+    inet_ntop(AF_INET, &socket.address.ipv4.sin_addr, ipString, sizeof(ipString));
+
+    std::string ip(ipString);
+    return ip;
+}
+
+int TcpClient::GetPort() const
+{
+    int port = ntohs(socket.address.ipv4.sin_port);
+    return port;
+}

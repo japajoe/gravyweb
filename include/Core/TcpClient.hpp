@@ -21,6 +21,8 @@ public:
     void Close();
     bool IsSecureConnection() const;
     bool IsConnected() const;
+    std::string GetIP() const;
+    int GetPort() const;
 };
 
 #endif
