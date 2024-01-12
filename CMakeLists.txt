@@ -30,17 +30,20 @@ file(GLOB SOURCES
     "${PROJECT_SOURCE_DIR}/src/System/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/System/IO/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/gravy/*.c"
+    "${PROJECT_SOURCE_DIR}/examples/basic/src/*.cpp"
+    "${PROJECT_SOURCE_DIR}/examples/basic/src/Controllers/*.cpp"
 )
 
 # Specify include Directory
 include_directories(
     "${PROJECT_SOURCE_DIR}/include"
-    "${PROJECT_SOURCE_DIR}/include/Controllers"
     "${PROJECT_SOURCE_DIR}/include/Core"
     "${PROJECT_SOURCE_DIR}/include/Routing"
     "${PROJECT_SOURCE_DIR}/include/System"
     "${PROJECT_SOURCE_DIR}/include/System/IO"
     "${PROJECT_SOURCE_DIR}/include/gravy"
+    "${PROJECT_SOURCE_DIR}/examples/basic/include"
+    "${PROJECT_SOURCE_DIR}/examples/basic/include/Controllers"
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
