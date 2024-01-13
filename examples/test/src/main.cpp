@@ -3,6 +3,8 @@
 #include "HttpSettings.hpp"
 #include "File.hpp"
 #include "FileStream.hpp"
+#include "IndexHandler.hpp"
+#include "NotFoundHandler.hpp"
 #include <memory>
 
 static HttpResponse OnHttpRequest(HttpContext *context);
@@ -17,18 +19,21 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    HttpRequestHandler indexHandler = [] (HttpContext *context) {
-        return HttpResponse(HttpStatusCode::OK);
+    IndexHandler indexPage;
+    NotFoundHandler notFoundPage;
+
+    HttpRequestHandler indexHandler = [&] (HttpContext *context) {
+        return indexPage.OnGet(context);
     };
 
-    HttpRequestHandler notFoundHandler = [] (HttpContext *context) {
-        return HttpResponse(HttpStatusCode::NotFound);
+    HttpRequestHandler notFoundHandler = [&] (HttpContext *context) {
+        return notFoundPage.OnGet(context);
     };
     
     routeMapper.AddGetHandler("/", HttpRequestHandlerInfo(indexHandler));
     routeMapper.AddGetHandler("/home", HttpRequestHandlerInfo(indexHandler));
     routeMapper.AddGetHandler("/index", HttpRequestHandlerInfo(indexHandler));
-    routeMapper.AddGetHandler("/404", HttpRequestHandlerInfo(notFoundHandler, HttpMediaType::Unknown, 0, true));
+    routeMapper.AddGetHandler("/404", HttpRequestHandlerInfo(notFoundHandler, HttpMediaType::Any, 0, true));
 
     HttpServer server(config);
     server.SetRequestHandler(OnHttpRequest);

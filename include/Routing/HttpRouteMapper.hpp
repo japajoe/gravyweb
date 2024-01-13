@@ -19,7 +19,7 @@ public:
     HttpMediaType mediaTypePolicy;
     uint64_t maxRequestBodySize;
     bool isInternal;
-    HttpRequestHandlerInfo(const HttpRequestHandler &handler, HttpMediaType mediaTypePolicy = HttpMediaType::Unknown, uint64_t maxRequestBodySize = 0, bool isInternal = false);
+    HttpRequestHandlerInfo(const HttpRequestHandler &handler, HttpMediaType mediaTypePolicy = HttpMediaType::Any, uint64_t maxRequestBodySize = 0, bool isInternal = false);
     HttpResponse GetResponse(HttpContext *context);
 };
 

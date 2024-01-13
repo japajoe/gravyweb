@@ -59,7 +59,8 @@ enum class HttpMediaType : int
     ApplicationMSWord,
     ApplicationVndOpenXmlFormatsOfficeDocumentWordProcessingMLDocument,
     ApplicationVndMozillaXulXml,
-    Unknown
+    Unknown,
+    Any = Unknown
 };
 
 enum HttpCharSet : int
