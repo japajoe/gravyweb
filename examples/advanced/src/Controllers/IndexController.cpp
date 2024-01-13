@@ -15,7 +15,7 @@ IndexController::IndexController()
         pageContent = HttpPageContent(HttpSettings::GetPrivateHtml() + "/index.html");
 }
 
-HttpResponse IndexController::OnGet(HttpContext *context)
+std::string IndexController::CreateContent() const
 {
     std::string html;
 
@@ -45,6 +45,12 @@ HttpResponse IndexController::OnGet(HttpContext *context)
         "</html>";           
     }
 
+    return html;
+}
+
+HttpResponse IndexController::OnGet(HttpContext *context)
+{
+    std::string html = CreateContent();
     HttpResponse response(HttpStatusCode::OK, HttpContentType(HttpMediaType::TextHtml), html);
     response.AddHeader("Cache-Control", "max-age=3600");
     return response;

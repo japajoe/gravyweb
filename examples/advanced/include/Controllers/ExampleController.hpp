@@ -8,6 +8,7 @@ class ExampleController : public HttpController
 {
 private:
     static HttpPageContent content;
+    std::string CreateContent() const;
 public:
     ExampleController();
     HttpResponse OnGet(HttpContext *context) override;

@@ -12,52 +12,52 @@ HttpController::~HttpController()
 
 HttpResponse HttpController::OnConnect(HttpContext *context)
 {
-    return HttpResponse(HttpStatusCode::MethodNotAllowed, HttpContentType(HttpMediaType::TextHtml));
+    return HttpResponse(HttpStatusCode::MethodNotAllowed);
 }
 
 HttpResponse HttpController::OnDelete(HttpContext *context)
 {
-    return HttpResponse(HttpStatusCode::MethodNotAllowed, HttpContentType(HttpMediaType::TextHtml));
+    return HttpResponse(HttpStatusCode::MethodNotAllowed);
 }
 
 HttpResponse HttpController::OnGet(HttpContext *context)
 {
-    return HttpResponse(HttpStatusCode::NotFound, HttpContentType(HttpMediaType::TextHtml));
+    return HttpResponse(HttpStatusCode::NotFound);
 }
 
 HttpResponse HttpController::OnHead(HttpContext *context)
 {
-    return HttpResponse(HttpStatusCode::MethodNotAllowed, HttpContentType(HttpMediaType::TextHtml));
+    return HttpResponse(HttpStatusCode::NotFound);
 }
 
 HttpResponse HttpController::OnOptions(HttpContext *context)
 {
-    return HttpResponse(HttpStatusCode::MethodNotAllowed, HttpContentType(HttpMediaType::TextHtml));
+    return HttpResponse(HttpStatusCode::MethodNotAllowed);
 }
 
 HttpResponse HttpController::OnPatch(HttpContext *context)
 {
-    return HttpResponse(HttpStatusCode::MethodNotAllowed, HttpContentType(HttpMediaType::TextHtml));
+    return HttpResponse(HttpStatusCode::MethodNotAllowed);
 }
 
 HttpResponse HttpController::OnPost(HttpContext *context)
 {
-    return HttpResponse(HttpStatusCode::MethodNotAllowed, HttpContentType(HttpMediaType::TextHtml));
+    return HttpResponse(HttpStatusCode::MethodNotAllowed);
 }
 
 HttpResponse HttpController::OnPut(HttpContext *context)
 {
-    return HttpResponse(HttpStatusCode::MethodNotAllowed, HttpContentType(HttpMediaType::TextHtml));
+    return HttpResponse(HttpStatusCode::MethodNotAllowed);
 }
 
 HttpResponse HttpController::OnTrace(HttpContext *context)
 {
-    return HttpResponse(HttpStatusCode::MethodNotAllowed, HttpContentType(HttpMediaType::TextHtml));
+    return HttpResponse(HttpStatusCode::MethodNotAllowed);
 }
 
 HttpResponse HttpController::OnUnknown(HttpContext *context)
 {
-    return HttpResponse(HttpStatusCode::MethodNotAllowed, HttpContentType(HttpMediaType::TextHtml));
+    return HttpResponse(HttpStatusCode::MethodNotAllowed);
 }
 
 void HttpController::SetMaxRequestBodySize(uint64_t size)

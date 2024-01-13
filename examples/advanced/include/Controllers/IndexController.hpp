@@ -9,6 +9,7 @@ class IndexController : public HttpController
 private:
     static HttpPageContent pageTemplate;
     static HttpPageContent pageContent;
+    std::string CreateContent() const;
 public:
     IndexController();
     HttpResponse OnGet(HttpContext *context) override;

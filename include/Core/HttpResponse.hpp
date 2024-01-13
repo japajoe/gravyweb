@@ -16,13 +16,14 @@ private:
     std::unordered_map<std::string,std::string> fields;
     HttpStatusCode status;
     HttpContentType contentType;
+    size_t contentLength;
     std::shared_ptr<Stream> content;
     bool Send(HttpStream *stream, void *data, size_t dataSize);
     bool Send(HttpStream *stream, Stream *data);
 public:
     HttpResponse(HttpStatusCode status, const HttpContentType &contentType, const std::string &content);
     HttpResponse(HttpStatusCode status, const HttpContentType &contentType, const std::shared_ptr<Stream> &content);
-    HttpResponse(HttpStatusCode status, const HttpContentType &contentType);
+    HttpResponse(HttpStatusCode status, const HttpContentType &contentType, size_t contentLength = 0);
     HttpResponse(HttpStatusCode status);
     HttpResponse();
     HttpStatusCode GetStatusCode() const;

@@ -12,13 +12,11 @@ ExampleController::ExampleController()
         content = HttpPageContent(HttpSettings::GetPrivateHtml() + "/template.html");
 }
 
-HttpResponse ExampleController::OnGet(HttpContext *context)
+std::string ExampleController::CreateContent() const
 {
-    bool result = content.Load();
+    std::string html;
 
-    std::string html = "Hello world";
-
-    if(result)
+    if(content.Load())
     {
         html = content.GetContent();
         StringUtility::Replace(html, "$(title)", "Example - Gravy Web");
@@ -34,8 +32,6 @@ HttpResponse ExampleController::OnGet(HttpContext *context)
     }
     else
     {
-        std::cout << "Content not found\n";
-
         html =
         "<!DOCTYPE html>\n"
         "<html lang=\"en\">\n"
@@ -50,6 +46,12 @@ HttpResponse ExampleController::OnGet(HttpContext *context)
         "</html>";           
     }
 
+    return html;
+}
+
+HttpResponse ExampleController::OnGet(HttpContext *context)
+{
+    std::string html = CreateContent();
     HttpResponse response(HttpStatusCode::OK, HttpContentType(HttpMediaType::TextHtml), html);
     response.AddHeader("Cache-Control", "max-age=3600");
     return response;

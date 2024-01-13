@@ -8,6 +8,7 @@ HttpResponse::HttpResponse(HttpStatusCode status, const HttpContentType &content
     this->contentType = contentType;
     char *data = const_cast<char*>(content.data());
     this->content = std::make_shared<MemoryStream>(data, content.size(), true);
+    this->contentLength = this->content->GetSize();
 }
 
 HttpResponse::HttpResponse(HttpStatusCode status, const HttpContentType &contentType, const std::shared_ptr<Stream> &content)
@@ -15,13 +16,15 @@ HttpResponse::HttpResponse(HttpStatusCode status, const HttpContentType &content
     this->status = status;
     this->contentType = contentType;
     this->content = content;
+    this->contentLength = content->GetSize();
 }
 
-HttpResponse::HttpResponse(HttpStatusCode status, const HttpContentType &contentType)
+HttpResponse::HttpResponse(HttpStatusCode status, const HttpContentType &contentType, size_t contentLength)
 {
     this->status = status;
     this->contentType = contentType;
     this->content = nullptr;
+    this->contentLength = contentLength;
 }
 
 HttpResponse::HttpResponse(HttpStatusCode status)
@@ -29,6 +32,7 @@ HttpResponse::HttpResponse(HttpStatusCode status)
     this->status = status;
     this->contentType = HttpContentType(HttpMediaType::TextPlain);
     this->content = nullptr;
+    this->contentLength = 0;
 }
 
 HttpResponse::HttpResponse()
@@ -36,6 +40,7 @@ HttpResponse::HttpResponse()
     this->status = HttpStatusCode::OK;
     this->contentType = HttpContentType(HttpMediaType::TextPlain);
     this->content = nullptr;
+    this->contentLength = 0;
 }
 
 HttpStatusCode HttpResponse::GetStatusCode() const
@@ -80,8 +85,19 @@ void HttpResponse::Send(HttpStream *stream)
 
     if(content != nullptr)
     {
-        builder.AddHeader("Content-Type", contentType.ToString());
-        builder.AddHeader("Content-Length", content->GetSize());
+        if(content->GetSize() > 0)
+        {
+            builder.AddHeader("Content-Type", contentType.ToString());
+            builder.AddHeader("Content-Length", content->GetSize());
+        }
+    }
+    else
+    {
+        if(contentLength > 0)
+        {
+            builder.AddHeader("Content-Type", contentType.ToString());
+            builder.AddHeader("Content-Length", contentLength);            
+        }
     }
 
     builder.EndHeader();

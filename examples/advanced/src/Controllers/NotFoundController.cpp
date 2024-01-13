@@ -11,7 +11,7 @@ NotFoundController::NotFoundController()
         content = HttpPageContent(HttpSettings::GetPrivateHtml() + "/template.html");
 }
 
-HttpResponse NotFoundController::OnGet(HttpContext *context)
+std::string NotFoundController::CreateContent() const
 {
     bool result = content.Load();
 
@@ -41,6 +41,12 @@ HttpResponse NotFoundController::OnGet(HttpContext *context)
         "</html>";        
     }
 
+    return html;
+}
+
+HttpResponse NotFoundController::OnGet(HttpContext *context)
+{
+    std::string html = CreateContent();
     HttpResponse response(HttpStatusCode::NotFound, HttpContentType(HttpMediaType::TextHtml), html);
     response.AddHeader("Cache-Control", "max-age=3600");
     return response;

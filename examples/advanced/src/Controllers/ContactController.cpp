@@ -11,13 +11,11 @@ ContactController::ContactController()
         content = HttpPageContent(HttpSettings::GetPrivateHtml() + "/template.html");    
 }
 
-HttpResponse ContactController::OnGet(HttpContext *context)
+std::string ContactController::CreateContent() const
 {
-    bool result = content.Load();
+    std::string html;
 
-    std::string html = "Hello world";
-
-    if(result)
+    if(content.Load())
     {
         html = content.GetContent();
         StringUtility::Replace(html, "$(title)", "Contact - Gravy Web");
@@ -41,6 +39,12 @@ HttpResponse ContactController::OnGet(HttpContext *context)
         "</html>";           
     }
 
+    return html;
+}
+
+HttpResponse ContactController::OnGet(HttpContext *context)
+{
+    std::string html = CreateContent();
     HttpResponse response(HttpStatusCode::OK, HttpContentType(HttpMediaType::TextHtml), html);
     response.AddHeader("Cache-Control", "max-age=3600");
     return response;

@@ -8,6 +8,7 @@ class ContactController : public HttpController
 {
 private:
     static HttpPageContent content;
+    std::string CreateContent() const;
 public:
     ContactController();
     HttpResponse OnGet(HttpContext *context) override;
