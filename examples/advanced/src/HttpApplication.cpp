@@ -19,7 +19,7 @@ HttpApplication::HttpApplication(const HttpConfig &config)
 
     server->SetRequestHandler(requestHandler);
 
-    routeMapper = std::make_unique<HttpRouteMapper>();
+    routeMapper = std::make_unique<HttpRouteMapperController>();
     routeMapper->Add<APIController>("/api/v1");
     routeMapper->Add<ContactController>("/contact");
     routeMapper->Add<ExampleController>("/example");

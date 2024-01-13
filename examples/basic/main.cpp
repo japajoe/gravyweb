@@ -1,6 +1,6 @@
 #include "HttpServer.hpp"
 
-HttpResponse OnHttpRequest(HttpContext *context);
+static HttpResponse OnHttpRequest(HttpContext *context);
 
 int main(int argc, char **argv)
 {

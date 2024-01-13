@@ -2,14 +2,14 @@
 #define HTTPAPPLICATION_HPP
 
 #include "HttpServer.hpp"
-#include "HttpRouteMapper.hpp"
+#include "HttpRouteMapperController.hpp"
 #include <memory>
 
 class HttpApplication
 {
 private:
     std::unique_ptr<HttpServer> server;
-    std::unique_ptr<HttpRouteMapper> routeMapper;
+    std::unique_ptr<HttpRouteMapperController> routeMapper;
     HttpResponse OnRequest(HttpContext *context);
 public:
     HttpApplication(const HttpConfig &config);
