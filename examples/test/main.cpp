@@ -17,8 +17,6 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    HttpRouteMapper routeMapper;
-
     HttpRequestHandler indexHandler = [] (HttpContext *context) {
         return HttpResponse(HttpStatusCode::OK);
     };
