@@ -187,7 +187,10 @@ bool HttpRequest::TryParse(const std::string &request, HttpRequest &httpRequest)
         }
 
         if(dictionary.count(key) == 0)
+        {
+            value.pop_back(); //Might still have carriage return
             dictionary[key] = value;
+        }
 
         if(StringUtility::ToLower(key) == "cookie")
             cookies.push_back(value);

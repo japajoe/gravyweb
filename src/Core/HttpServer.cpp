@@ -81,7 +81,6 @@ void HttpServer::HandleHttp()
         {
             HttpStream stream(client);
             auto result = std::async(std::launch::async, &HttpServer::HandleRequest, this, stream);
-            result.wait();
         }
     }
 
@@ -109,7 +108,6 @@ void HttpServer::HandleHttps()
         {
             HttpStream stream(client);
             auto result = std::async(std::launch::async, &HttpServer::HandleRequest, this, stream);
-            result.wait();
         }
     }
 
@@ -118,74 +116,86 @@ void HttpServer::HandleHttps()
 
 void HttpServer::HandleRequest(HttpStream stream)
 {
-    std::string header;
-    int32_t headerSize = ReadHeader(&stream, header);
-
-    if(headerSize <= 0 || headerSize > HttpSettings::GetMaxHeaderSize())
+    while(stream.GetClient()->IsConnected())
     {
-        if(headerSize <= 0)
+        std::string header;
+        int32_t headerSize = ReadHeader(&stream, header);
+
+        if(headerSize <= 0 || headerSize > HttpSettings::GetMaxHeaderSize())
         {
-            Console::WriteError("Received an unexpected EOF or 0 bytes from the transport stream");
-        }
-        else
-        {
-            HttpResponse response(HttpStatusCode::RequestHeaderFieldsTooLarge);
-            response.Send(&stream);
-            Console::WriteLog("[RES] " + std::to_string(static_cast<int>(response.GetStatusCode())));
-        }
-
-        stream.Close();
-        return;
-    }
-
-    HttpRequest request;    
-
-    if(!HttpRequest::TryParse(header, request))
-    {
-        HttpResponse response(HttpStatusCode::BadRequest, HttpContentType(HttpMediaType::TextPlain), "Invalid HTTP request header");
-        response.Send(&stream);
-        stream.Close();
-        Console::WriteLog("[RES] " + std::to_string(static_cast<int>(response.GetStatusCode())));
-        return;
-    }
-
-    Console::WriteLog("[REQ] " + request.GetMethodAsString() + ": " + request.GetRawURL());
-
-    if(!stream.GetClient()->IsSecureConnection())
-    {
-        if(HttpSettings::GetUseHttps())
-        {
-            if(HttpSettings::GetUseHttpsForwarding())
+            if(headerSize <= 0)
             {
-                HttpResponse response(HttpStatusCode::MovedPermanently);
-                response.AddHeader("Location", "https://" + HttpSettings::GetHost() + ":" + std::to_string(HttpSettings::GetSslPort()));
-                response.AddHeader("Connection", "close");
+                Console::WriteError("Received an unexpected EOF or 0 bytes from the transport stream");
+            }
+            else
+            {
+                HttpResponse response(HttpStatusCode::RequestHeaderFieldsTooLarge);
                 response.Send(&stream);
-                stream.Close();
                 Console::WriteLog("[RES] " + std::to_string(static_cast<int>(response.GetStatusCode())));
-                return;
+            }
+
+            stream.Close();
+            return;
+        }
+
+        HttpRequest request;    
+
+        if(!HttpRequest::TryParse(header, request))
+        {
+            HttpResponse response(HttpStatusCode::BadRequest, HttpContentType(HttpMediaType::TextPlain), "Invalid HTTP request header");
+            response.Send(&stream);
+            stream.Close();
+            Console::WriteLog("[RES] " + std::to_string(static_cast<int>(response.GetStatusCode())));
+            return;
+        }
+
+        Console::WriteLog("[REQ] " + request.GetMethodAsString() + ": " + request.GetRawURL());
+
+        if(!stream.GetClient()->IsSecureConnection())
+        {
+            if(HttpSettings::GetUseHttps())
+            {
+                if(HttpSettings::GetUseHttpsForwarding())
+                {
+                    HttpResponse response(HttpStatusCode::MovedPermanently);
+                    response.AddHeader("Location", "https://" + HttpSettings::GetHost() + ":" + std::to_string(HttpSettings::GetSslPort()));
+                    response.AddHeader("Connection", "close");
+                    response.Send(&stream);
+                    stream.Close();
+                    Console::WriteLog("[RES] " + std::to_string(static_cast<int>(response.GetStatusCode())));
+                    return;
+                }
             }
         }
+
+        HttpContext context(stream, request);
+        HttpContext *ctx = &context;
+
+        // Use std::async to call the registered callback asynchronously
+        auto result = std::async(std::launch::async, [this, ctx]() {
+            if (requestCallback)
+                return requestCallback(ctx);
+            else
+                return HttpResponse(HttpStatusCode::OK);
+        });
+
+        try 
+        {
+            HttpResponse response = result.get();
+            response.Send(&stream);
+            Console::WriteLog("[RES] " + std::to_string(static_cast<int>(response.GetStatusCode())));
+        } 
+        catch (const std::exception& e) 
+        {
+            std::string message(e.what());
+            Console::WriteError("Exception caught: " + message);
+            stream.Close();
+            return;
+        }
+
+        if(request.GetConnection() != "keep-alive")
+            stream.Close();
     }
-
-    HttpContext context(stream, request);
-    HttpContext *ctx = &context;
-
-    // Use std::async to call the registered callback asynchronously
-    auto result = std::async(std::launch::async, [this, ctx]() {
-        if (requestCallback)
-            return requestCallback(ctx);
-        else
-            return HttpResponse(HttpStatusCode::OK);
-    });
-
-    // Wait for the asynchronous operation to complete
-    HttpResponse resp = result.get();
-    resp.Send(&stream);
-
-    stream.Close();
-    
-    Console::WriteLog("[RES] " + std::to_string(static_cast<int>(resp.GetStatusCode())));
 }
 
 int32_t HttpServer::ReadHeader(HttpStream *stream, std::string &header)

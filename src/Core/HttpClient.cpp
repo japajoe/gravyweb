@@ -42,16 +42,22 @@ void HttpClient::SetResponseHandler(const HttpClientResponseHandler &handler)
 bool HttpClient::Connect(const TcpConnectionInfo &connectionInfo)
 {
     if(socket.fd >= 0)
+    {
+        Console::WriteError("Failed to connect, socket already in use");
         return false;
+    }
 
     socket = gravy_tcp_socket_create();
 
     if(socket.fd < 0)
+    {
+        Console::WriteError("Failed to create socket");
         return false;
+    }
     
     if(!gravy_tcp_socket_connect(&socket, connectionInfo.ip.c_str(), connectionInfo.port))
     {
-        Console::WriteError("Failed to connect");
+        Console::WriteError("Failed to connect to " + connectionInfo.ip);
         Close();
         return false;
     }
@@ -62,6 +68,7 @@ bool HttpClient::Connect(const TcpConnectionInfo &connectionInfo)
         
         if (sslContext == nullptr)
         {
+            Console::WriteError("Failed to create SSL context");
             Close();
             return false;
         }
@@ -73,6 +80,7 @@ bool HttpClient::Connect(const TcpConnectionInfo &connectionInfo)
 
         if (SSL_connect(ssl) != 1) 
         {
+            Console::WriteError("Failed to SSL connect");
             Close();
             return false;
         }
