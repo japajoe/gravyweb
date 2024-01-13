@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 HttpResponse OnHttpRequest(HttpContext *context)
 {
     if(context->GetRequest()->GetURL() == "/")
-        return HttpResponse(HttpStatusCode::OK, HttpContentType(HttpMediaType::TextPlain), "Hello world");
+        return HttpResponse(HttpStatusCode::OK, HttpContentType(HttpMediaType::TextHtml), "<h1>Hello world</h1>");
     else
         return HttpResponse(HttpStatusCode::NotFound);
 }

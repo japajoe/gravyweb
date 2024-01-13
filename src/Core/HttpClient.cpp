@@ -135,7 +135,7 @@ bool HttpClient::Get(const std::string &url)
     "Accept: */*\r\n"
     "Connection: close\r\n\r\n";
 
-    unsigned char *pRequest = reinterpret_cast<unsigned char*>(const_cast<char*>(request.c_str()));
+    char *pRequest = const_cast<char*>(request.c_str());
 
     ssize_t bytesToSend = request.size();
     ssize_t bytesSent = 0;

@@ -13,3 +13,33 @@ I am not an authority in the field of web servers. This project is just for fun 
 
 # Dependencies
 You're only required to install OpenSSL development libraries. I have developed this project on Linux so I can't say what exactly is required to make it work on Windows. In theory you need to link with OpenSSL and ws2_32 (Winsock2) if you want to try this. If you want to have support for HTTPS, you need to provide a certicate. To generate a self signed certificate use following command `openssl req -newkey rsa:4096 -x509 -sha256 -days 3650 -nodes -out cert.pem -keyout key.pem`. After creating a certificate, be sure to update the settings in config.txt.
+
+# Example
+```cpp
+#include "HttpServer.hpp"
+
+static HttpResponse OnHttpRequest(HttpContext *context);
+
+int main(int argc, char **argv)
+{
+    HttpConfig config;
+    
+    if(!config.LoadFromFile("config.ini"))
+    {
+        return 1;
+    }
+
+    HttpServer server(config);
+    server.SetRequestHandler(OnHttpRequest);
+    server.Run();
+    return 0;
+}
+
+HttpResponse OnHttpRequest(HttpContext *context)
+{
+    if(context->GetRequest()->GetURL() == "/")
+        return HttpResponse(HttpStatusCode::OK, HttpContentType(HttpMediaType::TextHtml), "<h1>Hello world</h1>");
+    else
+        return HttpResponse(HttpStatusCode::NotFound);
+}
+```
