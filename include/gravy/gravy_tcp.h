@@ -27,6 +27,10 @@
 #include <poll.h>
 #endif
 
+#ifndef SOCKET_ERROR
+#define SOCKET_ERROR -1
+#endif
+
 typedef struct sockaddr_in sockaddr_in_t;
 typedef struct sockaddr_in6 sockaddr_in6_t;
 

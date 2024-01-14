@@ -58,19 +58,11 @@ int gravy_tcp_socket_bind(gravy_tcp_socket_t *socket, const char *bindAddress, u
 
     memcpy(&socket->address.ipv4, &address, sizeof(sockaddr_in_t));
 
-#ifdef _WIN32
     return bind(socket->fd, (struct sockaddr*)&socket->address.ipv4, sizeof(sockaddr_in_t)) == SOCKET_ERROR ? GRAVY_ERROR : GRAVY_SUCCESS;
-#else
-    return bind(socket->fd, (struct sockaddr*)&socket->address.ipv4, sizeof(sockaddr_in_t)) == -1 ? GRAVY_ERROR : GRAVY_SUCCESS;
-#endif
 }
 
 int gravy_tcp_socket_listen(gravy_tcp_socket_t *socket, int backlog) {
-#ifdef _WIN32
     return listen(socket->fd, backlog) == SOCKET_ERROR ? GRAVY_ERROR : GRAVY_SUCCESS;
-#else
-    return listen(socket->fd, backlog) == -1 ? GRAVY_ERROR : GRAVY_SUCCESS;
-#endif
 }
 
 int gravy_tcp_socket_accept(gravy_tcp_socket_t *serverSocket, gravy_tcp_socket_t *clientSocket) {
@@ -102,14 +94,7 @@ int gravy_tcp_socket_connect(gravy_tcp_socket_t *socket, const char *ip, uint16_
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(port);
     serverAddr.sin_addr.s_addr = inet_addr(ip);
-
-    int result = connect(socket->fd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
-
-#ifdef _WIN32
-    return result == SOCKET_ERROR ? GRAVY_ERROR : GRAVY_SUCCESS;
-#else
-    return result == -1 ? GRAVY_ERROR : GRAVY_SUCCESS;
-#endif
+    return connect(socket->fd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR ? GRAVY_ERROR : GRAVY_SUCCESS;
 }
 
 ssize_t gravy_tcp_socket_send(gravy_tcp_socket_t *socket, const void *data, size_t size) {
