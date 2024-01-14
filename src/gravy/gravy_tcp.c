@@ -139,8 +139,8 @@ void gravy_tcp_socket_close(gravy_tcp_socket_t *socket) {
 
 int gravy_tcp_socket_set_option(gravy_tcp_socket_t *socket, int level, int option, const void *value, uint32_t valueSize) {
 #ifdef _WIN32
-    return setsockopt(socket->fd, level, option, (char*)value, valueSize) == 0;
+    return setsockopt(socket->fd, level, option, (char*)value, valueSize) != 0 ? GRAVY_ERROR : GRAVY_SUCCESS;
 #else
-    return setsockopt(socket->fd, level, option, value, valueSize) == 0;
+    return setsockopt(socket->fd, level, option, value, valueSize) != 0 ? GRAVY_ERROR : GRAVY_SUCCESS;
 #endif
 }
