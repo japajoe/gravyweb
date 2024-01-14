@@ -20,6 +20,7 @@ public:
     static uint16_t GetSslPort();
     static bool GetUseHttps();
     static bool GetUseHttpsForwarding();
+    static int32_t GetMaxConnections();
     static uint32_t GetMaxHeaderSize();
     static uint64_t GetMaxRequestBodySize();
     static uint32_t GetBufferSize();

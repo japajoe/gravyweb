@@ -111,3 +111,41 @@ void gravy_tcp_socket_close(gravy_tcp_socket_t *socket) {
 int gravy_tcp_socket_set_option(gravy_tcp_socket_t *socket, int level, int option, const void *value, uint32_t valueSize) {
     return setsockopt(socket->fd, level, option, value, valueSize) == 0;
 }
+
+int gravy_tcp_socket_poll(const gravy_tcp_socket_t *socket) {
+#ifdef _WIN32
+    WSAPOLLFD fd;
+    fd.fd = socket->fd;
+    fd.events = POLLRDNORM;
+
+    // Use WSAPoll to check for readability
+    int result = WSAPoll(&fd, 1, 0);
+
+    if (result == SOCKET_ERROR) {
+        return -1;
+    } else if (result == 0) {
+        // Timeout occurred, socket is not readable
+        return 0;
+    } else {
+        // Socket is readable, meaning it is still connected
+        return 1;
+    }
+#else
+    struct pollfd pfd;
+    pfd.fd = socket->fd;
+    pfd.events = POLLIN;
+
+    // Use poll to check for readability
+    int result = poll(&pfd, 1, 0);
+
+    if (result == -1) {
+        return -1;
+    } else if (result == 0) {
+        // Timeout occurred, socket is not readable
+        return 0;
+    } else {
+        // Socket is readable, meaning it is still connected
+        return 1;
+    }
+#endif
+}

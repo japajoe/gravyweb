@@ -62,7 +62,12 @@ void HttpServer::SetRequestHandler(HttpRequestCallback callback)
 
 void HttpServer::HandleHttp()
 {
-    TcpListenerSettings settings(HttpSettings::GetPort(), HttpSettings::GetBindAddress());
+    int32_t backlog = HttpSettings::GetMaxConnections();
+
+    if(backlog <= 0)
+        backlog = TCP_LISTENER_MAX_CONNECTIONS;
+
+    TcpListenerSettings settings(HttpSettings::GetPort(), HttpSettings::GetBindAddress(), backlog);
     TcpListener listener(settings);
 
     if(!listener.Start())
@@ -89,7 +94,12 @@ void HttpServer::HandleHttp()
 
 void HttpServer::HandleHttps()
 {
-    TcpListenerSettings settings(HttpSettings::GetSslPort(), HttpSettings::GetBindAddress(), HttpSettings::GetCertificatePath(), HttpSettings::GetPrivateKeyPath());
+    int32_t backlog = HttpSettings::GetMaxConnections();
+
+    if(backlog <= 0)
+        backlog = TCP_LISTENER_MAX_CONNECTIONS;
+
+    TcpListenerSettings settings(HttpSettings::GetSslPort(), HttpSettings::GetBindAddress(), backlog, HttpSettings::GetCertificatePath(), HttpSettings::GetPrivateKeyPath());
     TcpListener listener(settings);
 
     if(!listener.Start())
@@ -125,6 +135,8 @@ void HttpServer::HandleRequest(HttpStream stream)
         {
             if(headerSize <= 0)
             {
+                //This may happen if a client has not sent any data for a while
+                //It may also happen when a client very frequently refreshes a page (like holding F5 in the browser)
                 Console::WriteError("Received an unexpected EOF or 0 bytes from the transport stream");
             }
             else

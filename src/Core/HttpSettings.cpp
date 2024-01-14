@@ -61,6 +61,11 @@ bool HttpSettings::GetUseHttpsForwarding()
     return config.useHttpsForwarding;
 }
 
+int32_t HttpSettings::GetMaxConnections()
+{
+    return config.maxConnections;
+}
+
 uint32_t HttpSettings::GetMaxHeaderSize()
 {
     return config.maxHeaderSize;

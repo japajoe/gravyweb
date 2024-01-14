@@ -99,6 +99,7 @@ bool TcpClient::IsSecureConnection() const
 
 bool TcpClient::IsConnected() const
 {
+    //This is not factually checking if a socket is connected xD
     return socket.fd >= 0;
 }
 

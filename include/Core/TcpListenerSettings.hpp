@@ -34,6 +34,7 @@ public:
     {
         this->port = port;        
         this->bindAddress = bindAddress;
+        this->backlog = backlog;
         this->useSSL = false;
     }
 

@@ -186,9 +186,11 @@ bool HttpRequest::TryParse(const std::string &request, HttpRequest &httpRequest)
                 value += lineComponents[j];
         }
 
+        //Remove carriage return \r
+        StringUtility::Replace(value, "\r", "");
+
         if(dictionary.count(key) == 0)
         {
-            value.pop_back(); //Might still have carriage return
             dictionary[key] = value;
         }
 
@@ -214,6 +216,11 @@ bool HttpRequest::TryParse(const std::string &request, HttpRequest &httpRequest)
     httpRequest.upgradeInsecureRequests = GetValue(dictionary, "Upgrade-Insecure-Requests");
     httpRequest.contentType = GetContentType(GetValue(dictionary, "Content-Type"));
     httpRequest.contentLength = StringUtility::ToUInt64(GetValue(dictionary, "Content-Length"));
+
+    //Some requests might not have this header, but we do care about it being present
+    //If no connection policy has been requested, we assume the connection should be closed after the request
+    if(httpRequest.connection != "keep-alive")
+        httpRequest.connection = "close";
 
     httpRequest.keyValuePairs = GetKeyValuePairs(httpRequest.URL);
 

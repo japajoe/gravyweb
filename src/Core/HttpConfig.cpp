@@ -71,6 +71,7 @@ bool HttpConfig::LoadFromFile(const std::string &path)
     expectedKeyValuePairs["ssl_port"] = "8081";
     expectedKeyValuePairs["use_https"] = "true";
     expectedKeyValuePairs["use_https_forwarding"] = "true";
+    expectedKeyValuePairs["max_connections"] = "-1";
     expectedKeyValuePairs["max_header_size"] = "8192";
     expectedKeyValuePairs["max_request_body_size"] = "8192";
     expectedKeyValuePairs["buffer_size"] = "4096";
@@ -123,6 +124,7 @@ bool HttpConfig::LoadFromFile(const std::string &path)
     uint16_t sslPort = 8081;
     bool useHttps = false;
     bool useHttpsForwarding = false;
+    int32_t maxConnections = -1;
     uint32_t maxHeaderSize = 8192;
     uint64_t maxRequestBodySize = 8192;
     uint32_t bufferSize = 4096;
@@ -148,6 +150,12 @@ bool HttpConfig::LoadFromFile(const std::string &path)
     if(!ParseBool(keyValuePairs["use_https_forwarding"], useHttpsForwarding))
     {
         Console::WriteError("Failed to parse use_https_forwarding use_https");
+        return false;
+    }
+
+    if(!ParseNumber(keyValuePairs["max_connections"], maxConnections))
+    {
+        Console::WriteError("Failed to parse max_connections");
         return false;
     }
     
@@ -180,6 +188,7 @@ bool HttpConfig::LoadFromFile(const std::string &path)
     this->sslPort = sslPort;
     this->useHttps = useHttps;
     this->useHttpsForwarding = useHttpsForwarding;
+    this->maxConnections = maxConnections;
     this->maxHeaderSize = maxHeaderSize;
     this->maxRequestBodySize = maxRequestBodySize;
     this->bufferSize = bufferSize;

@@ -5,18 +5,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <openssl/ssl.h>
 
 #ifdef _WIN32
 #include <winsock2.h>
-#include "openssl/ssl.h"
+#include <ws2tcpip.h>
 #else
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <openssl/ssl.h>
 #include <netdb.h>
+#include <poll.h>
 #endif
 
 typedef struct sockaddr_in sockaddr_in_t;
@@ -48,6 +49,7 @@ extern "C" {
     GRAVY_API ssize_t gravy_tcp_socket_receive(gravy_tcp_socket_t *socket, void *buffer, size_t size);
     GRAVY_API void gravy_tcp_socket_close(gravy_tcp_socket_t *socket);
     GRAVY_API int gravy_tcp_socket_set_option(gravy_tcp_socket_t *socket, int level, int option, const void *value, uint32_t valueSize);
+    GRAVY_API int gravy_tcp_socket_poll(const gravy_tcp_socket_t *socket);
 #ifdef __cplusplus
 }
 #endif

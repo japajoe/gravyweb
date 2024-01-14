@@ -25,6 +25,7 @@ public:
     uint16_t sslPort;
     bool useHttps;
     bool useHttpsForwarding;
+    int32_t maxConnections;
     uint32_t maxHeaderSize;
     uint64_t maxRequestBodySize;
     uint32_t bufferSize;
