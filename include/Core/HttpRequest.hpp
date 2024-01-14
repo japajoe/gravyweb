@@ -19,14 +19,14 @@ private:
     std::string accept;
     std::string acceptLanguage;
     std::string acceptEncoding;
-    std::string DNT;
+    bool DNT;
     std::string connection;
     std::string referer;
     std::string secFetchDest;
     std::string secFetchMode;
     std::string secFetchSite;
     std::string cacheControl;
-    std::string upgradeInsecureRequests;
+    bool upgradeInsecureRequests;
     HttpContentType contentType;
     uint64_t contentLength;
     std::unordered_map<std::string,std::string> keyValuePairs;
@@ -36,6 +36,7 @@ private:
     static std::unordered_map<std::string,std::string> GetKeyValuePairs(const std::string & URL);
     static std::unordered_map<std::string,std::string> GetCookies(const std::vector<std::string> &cookies);
     static HttpContentType GetContentType(const std::string &s);
+    static bool GetBoolean(const std::string &s);
     static void CreateRequestMethodTable();
 public:
     HttpRequest();
@@ -48,14 +49,14 @@ public:
     std::string GetAccept() const;
     std::string GetAcceptLanguage() const;
     std::string GetAcceptEncoding() const;
-    std::string GetDNT() const;
+    bool GetDNT() const;
     std::string GetConnection() const;
     std::string GetReferer() const;
     std::string GetSecFetchDest() const;
     std::string GetSecFetchMode() const;
     std::string GetSecFetchSite() const;
     std::string GetCacheControl() const;
-    std::string GetUpgradeInsecureRequests() const;
+    bool GetUpgradeInsecureRequests() const;
     HttpContentType GetContentType() const;
     uint64_t GetContentLength() const;
     std::unordered_map<std::string,std::string> GetKeyValuePairs() const;

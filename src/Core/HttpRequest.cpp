@@ -80,7 +80,7 @@ std::string HttpRequest::GetAcceptEncoding() const
     return acceptEncoding;
 }
 
-std::string HttpRequest::GetDNT() const
+bool HttpRequest::GetDNT() const
 {
     return DNT;
 }
@@ -115,7 +115,7 @@ std::string HttpRequest::GetCacheControl() const
     return cacheControl;
 }
 
-std::string HttpRequest::GetUpgradeInsecureRequests() const
+bool HttpRequest::GetUpgradeInsecureRequests() const
 {
     return upgradeInsecureRequests;
 }
@@ -206,14 +206,14 @@ bool HttpRequest::TryParse(const std::string &request, HttpRequest &httpRequest)
     httpRequest.accept = GetValue(dictionary, "Accept");
     httpRequest.acceptLanguage = GetValue(dictionary, "Accept-Language");
     httpRequest.acceptEncoding = GetValue(dictionary, "Accept-Encoding");
-    httpRequest.DNT = GetValue(dictionary, "DNT");
+    httpRequest.DNT = GetBoolean(GetValue(dictionary, "DNT"));
     httpRequest.connection = GetValue(dictionary, "Connection");
     httpRequest.referer = GetValue(dictionary, "Referer");
     httpRequest.secFetchDest = GetValue(dictionary, "Sec-Fetch-Dest");
     httpRequest.secFetchMode = GetValue(dictionary, "Sec-Fetch-Mode");
     httpRequest.secFetchSite = GetValue(dictionary, "Sec-Fetch-Site");
     httpRequest.cacheControl = GetValue(dictionary, "Cache-Control");
-    httpRequest.upgradeInsecureRequests = GetValue(dictionary, "Upgrade-Insecure-Requests");
+    httpRequest.upgradeInsecureRequests = GetBoolean(GetValue(dictionary, "Upgrade-Insecure-Requests"));
     httpRequest.contentType = GetContentType(GetValue(dictionary, "Content-Type"));
     httpRequest.contentLength = StringUtility::ToUInt64(GetValue(dictionary, "Content-Length"));
 
@@ -385,6 +385,11 @@ HttpContentType HttpRequest::GetContentType(const std::string &s)
 
     mediaType = HttpContentType::GetMediaTypeFromString(StringUtility::Trim(s));
     return HttpContentType(mediaType);            
+}
+
+bool HttpRequest::GetBoolean(const std::string &s)
+{
+    return StringUtility::ToInt64(s) > 0 ? true : false;
 }
 
 void HttpRequest::CreateRequestMethodTable()
