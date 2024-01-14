@@ -78,6 +78,9 @@ int gravy_tcp_socket_accept(gravy_tcp_socket_t *serverSocket, gravy_tcp_socket_t
 
 #ifdef _WIN32
     clientFD = accept(serverSocket->fd, (struct sockaddr*)&clientAddr, (int32_t*)&addrLen);
+
+    if(clientFD == INVALID_SOCKET)
+        clientFD = -1;
 #else
     clientFD = accept(serverSocket->fd, (struct sockaddr*)&clientAddr, &addrLen);
 #endif
