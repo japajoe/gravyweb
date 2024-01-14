@@ -167,8 +167,7 @@ void HttpServer::HandleRequest(HttpStream stream)
         {
             if(HttpSettings::GetUseHttps())
             {
-                //If a client requests so, we should still upgrade the connection
-                if(HttpSettings::GetUseHttpsForwarding() || request.GetUpgradeInsecureRequests())
+                if(HttpSettings::GetUseHttpsForwarding())
                 {
                     std::string location = "https://" + HttpSettings::GetHost() + ":" + std::to_string(HttpSettings::GetSslPort()) + request.GetURL();
                     HttpResponse response(HttpStatusCode::MovedPermanently);
@@ -178,6 +177,21 @@ void HttpServer::HandleRequest(HttpStream stream)
                     stream.Close();
                     Console::WriteLog("[RES] " + std::to_string(static_cast<int>(response.GetStatusCode())));
                     return;
+                }
+                else
+                {
+                    //Even if we don't have explicit https forwarding, when a client requests so, we should still upgrade the connection
+                    if(request.GetUpgradeInsecureRequests())
+                    {
+                        std::string location = "https://" + HttpSettings::GetHost() + ":" + std::to_string(HttpSettings::GetSslPort()) + request.GetURL();
+                        HttpResponse response(HttpStatusCode::MovedPermanently);
+                        response.AddHeader("Location", location);
+                        response.AddHeader("Connection", "close");
+                        response.Send(&stream);
+                        stream.Close();
+                        Console::WriteLog("[RES] " + std::to_string(static_cast<int>(response.GetStatusCode())));
+                        return;
+                    }
                 }
             }
         }
