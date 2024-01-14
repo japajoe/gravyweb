@@ -103,13 +103,10 @@ int gravy_tcp_socket_connect(gravy_tcp_socket_t *socket, const char *ip, uint16_
     int result = connect(socket->fd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
 
 #ifdef _WIN32
-    if(result == SOCKET_ERROR)
-        return GRAVY_ERROR;
+    return result == SOCKET_ERROR ? GRAVY_ERROR : GRAVY_SUCCESS;
 #else
-    if(result == -1)
-        return GRAVY_ERROR;
+    return result == -1 ? GRAVY_ERROR : GRAVY_SUCCESS;
 #endif
-    return GRAVY_SUCCESS;
 }
 
 ssize_t gravy_tcp_socket_send(gravy_tcp_socket_t *socket, const void *data, size_t size) {
