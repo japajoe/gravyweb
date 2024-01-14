@@ -222,7 +222,10 @@ void HttpServer::HandleRequest(HttpStream stream)
         }
 
         if(request.GetConnection() != "keep-alive")
+        {
             stream.Close();
+            return;
+        }
     }
 }
 
