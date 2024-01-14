@@ -131,9 +131,7 @@ bool HttpClient::Get(const std::string &url)
     if(!CreateSSLContext())
         return false;
 
-    std::string path;
-    std::string host;
-    std::string scheme;
+    std::string path, host, scheme;
 
     if(!GetURIComponents(url, path, host, scheme))
         return false;
@@ -166,7 +164,7 @@ bool HttpClient::Get(const std::string &url)
     ssize_t bytesReceived = 0;
 
     unsigned char buffer[1024];
-    memset(buffer, 0, 1024);
+    std::memset(buffer, 0, 1024);
 
     while(bytesSent < bytesToSend)
     {

@@ -35,6 +35,10 @@ void gravy_tcp_library_uninit(void) {
 gravy_tcp_socket_t gravy_tcp_socket_create(void) {
     gravy_tcp_socket_t s = {0};
     s.fd = socket(AF_INET, SOCK_STREAM, 0);
+#ifdef _WIN32
+    if(s.fd == INVALID_SOCKET)
+        s.fd = -1;
+#endif
     return s;
 }
 
@@ -69,7 +73,14 @@ int gravy_tcp_socket_listen(gravy_tcp_socket_t *socket, int backlog) {
 int gravy_tcp_socket_accept(gravy_tcp_socket_t *serverSocket, gravy_tcp_socket_t *clientSocket) {
     sockaddr_in_t clientAddr;
     uint32_t addrLen = sizeof(clientAddr);
-    int clientFD = accept(serverSocket->fd, (struct sockaddr*)&clientAddr, &addrLen);
+
+    int clientFD = -1;
+
+#ifdef _WIN32
+    clientFD = accept(serverSocket->fd, (struct sockaddr*)&clientAddr, (int32_t*)&addrLen);
+#else
+    clientFD = accept(serverSocket->fd, (struct sockaddr*)&clientAddr, &addrLen);
+#endif
 
     if (clientFD == -1)
         return GRAVY_ERROR;
@@ -92,11 +103,19 @@ int gravy_tcp_socket_connect(gravy_tcp_socket_t *socket, const char *ip, uint16_
 }
 
 ssize_t gravy_tcp_socket_send(gravy_tcp_socket_t *socket, const void *data, size_t size) {
+#ifdef _WIN32
+    return send(socket->fd, (char*)data, size, 0);
+#else
     return send(socket->fd, data, size, 0);
+#endif
 }
 
 ssize_t gravy_tcp_socket_receive(gravy_tcp_socket_t *socket, void *buffer, size_t size) {
+#ifdef _WIN32
+    return recv(socket->fd, (char*)buffer, size, 0);
+#else
     return recv(socket->fd, buffer, size, 0);
+#endif
 }
 
 void gravy_tcp_socket_close(gravy_tcp_socket_t *socket) {
@@ -109,43 +128,9 @@ void gravy_tcp_socket_close(gravy_tcp_socket_t *socket) {
 }
 
 int gravy_tcp_socket_set_option(gravy_tcp_socket_t *socket, int level, int option, const void *value, uint32_t valueSize) {
-    return setsockopt(socket->fd, level, option, value, valueSize) == 0;
-}
-
-int gravy_tcp_socket_poll(const gravy_tcp_socket_t *socket) {
 #ifdef _WIN32
-    WSAPOLLFD fd;
-    fd.fd = socket->fd;
-    fd.events = POLLRDNORM;
-
-    // Use WSAPoll to check for readability
-    int result = WSAPoll(&fd, 1, 0);
-
-    if (result == SOCKET_ERROR) {
-        return -1;
-    } else if (result == 0) {
-        // Timeout occurred, socket is not readable
-        return 0;
-    } else {
-        // Socket is readable, meaning it is still connected
-        return 1;
-    }
+    return setsockopt(socket->fd, level, option, (char*)value, valueSize) == 0;
 #else
-    struct pollfd pfd;
-    pfd.fd = socket->fd;
-    pfd.events = POLLIN;
-
-    // Use poll to check for readability
-    int result = poll(&pfd, 1, 0);
-
-    if (result == -1) {
-        return -1;
-    } else if (result == 0) {
-        // Timeout occurred, socket is not readable
-        return 0;
-    } else {
-        // Socket is readable, meaning it is still connected
-        return 1;
-    }
+    return setsockopt(socket->fd, level, option, value, valueSize) == 0;
 #endif
 }

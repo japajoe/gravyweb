@@ -8,6 +8,13 @@
 #include <openssl/ssl.h>
 
 #ifdef _WIN32
+#ifdef _WIN32_WINNT
+#undef _WIN32_WINNT
+#endif
+#define _WIN32_WINNT 0x0600
+#endif
+
+#ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #else
@@ -49,7 +56,6 @@ extern "C" {
     GRAVY_API ssize_t gravy_tcp_socket_receive(gravy_tcp_socket_t *socket, void *buffer, size_t size);
     GRAVY_API void gravy_tcp_socket_close(gravy_tcp_socket_t *socket);
     GRAVY_API int gravy_tcp_socket_set_option(gravy_tcp_socket_t *socket, int level, int option, const void *value, uint32_t valueSize);
-    GRAVY_API int gravy_tcp_socket_poll(const gravy_tcp_socket_t *socket);
 #ifdef __cplusplus
 }
 #endif
