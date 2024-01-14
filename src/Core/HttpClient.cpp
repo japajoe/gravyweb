@@ -3,43 +3,19 @@
 #include "Console.hpp"
 #include <cstring>
 
-HttpClient::HttpClient()
+HttpClientConnection::HttpClientConnection()
 {
     std::memset(&socket, 0, sizeof(gravy_tcp_socket));
     socket.fd = -1;
-    sslContext = nullptr;
     ssl = nullptr;
 }
 
-HttpClient::~HttpClient()
+HttpClientConnection::~HttpClientConnection()
 {
     Close();
 }
 
-void HttpClient::Close()
-{
-    if(socket.fd >= 0)
-        gravy_tcp_socket_close(&socket);
-
-    if(ssl)
-    {
-        SSL_shutdown(ssl);
-        SSL_free(ssl);
-        ssl = nullptr;           
-    }
-    if(sslContext)
-    {
-        SSL_CTX_free(sslContext);
-        sslContext = nullptr;
-    }
-}
-
-void HttpClient::SetResponseHandler(const HttpClientResponseHandler &handler)
-{
-    this->responseHandler = handler;
-}
-
-bool HttpClient::Connect(const TcpConnectionInfo &connectionInfo)
+bool HttpClientConnection::Connect(const TcpConnectionInfo &connectionInfo, SSL_CTX *sslContext)
 {
     if(socket.fd >= 0)
     {
@@ -62,17 +38,8 @@ bool HttpClient::Connect(const TcpConnectionInfo &connectionInfo)
         return false;
     }
 
-    if(connectionInfo.secure)
+    if(sslContext)
     {
-        sslContext = SSL_CTX_new(TLS_method());
-        
-        if (sslContext == nullptr)
-        {
-            Console::WriteError("Failed to create SSL context");
-            Close();
-            return false;
-        }
-
         ssl = SSL_new(sslContext);
         SSL_set_fd(ssl, socket.fd);
         
@@ -89,19 +56,137 @@ bool HttpClient::Connect(const TcpConnectionInfo &connectionInfo)
     return true;
 }
 
-bool HttpClient::Get(const std::string &url)
+ssize_t HttpClientConnection::Read(void *buffer, size_t size)
 {
-    if(!responseHandler)
+    if(ssl)
+        return SSL_read(ssl, buffer, size);
+    else
+        return gravy_tcp_socket_receive(&socket, buffer, size);
+}
+
+ssize_t HttpClientConnection::Write(const void *buffer, size_t size)
+{
+    if(ssl)
+        return SSL_write(ssl, buffer, size);
+    else
+        return gravy_tcp_socket_send(&socket, buffer, size);
+}
+
+void HttpClientConnection::Close()
+{
+    if(socket.fd >= 0)
+        gravy_tcp_socket_close(&socket);
+
+    if(ssl)
     {
-        Console::WriteError("Response handler not assigned");
+        SSL_shutdown(ssl);
+        SSL_free(ssl);
+        ssl = nullptr;           
+    }
+}
+
+HttpClient::HttpClient()
+{
+    sslContext = nullptr;
+    handler = nullptr;
+    userData = nullptr;
+}
+
+HttpClient::~HttpClient()
+{
+    if(sslContext)
+    {
+        SSL_CTX_free(sslContext);
+        sslContext = nullptr;
+    }
+}
+
+bool HttpClient::CreateSSLContext()
+{
+    if(sslContext)
+        return true;
+
+    if(sslContext == nullptr)
+    {
+        sslContext = SSL_CTX_new(TLS_method());
+    }
+
+    if (sslContext == nullptr)
+    {
+        Console::WriteError("Failed to create SSL context");
         return false;
     }
 
-    URI uri(url);
+    return true;
+}
+
+bool HttpClient::Get(const std::string &url)
+{
+    if(!handler)
+    {
+        Console::WriteError("No response handler was set");
+        return false;
+    }
+
+    if(!CreateSSLContext())
+        return false;
 
     std::string path;
     std::string host;
     std::string scheme;
+
+    if(!GetURIComponents(url, path, host, scheme))
+        return false;
+
+    TcpConnectionInfo connectionInfo;
+
+    if(!TcpConnectionInfo::CreateFromURL(scheme + host, connectionInfo))
+    {
+        Console::WriteError("Failed to create connection info from URL");
+        return false;
+    }
+
+    HttpClientConnection connection;
+    
+    if(!connection.Connect(connectionInfo, connectionInfo.secure ? sslContext : nullptr))
+    {
+        return false;
+    }
+
+    std::string request = 
+    "GET " + path + " HTTP/1.1\r\n"
+    "Host: " + host + "\r\n"
+    "Accept: */*\r\n"
+    "Connection: close\r\n\r\n";
+
+    char *pRequest = const_cast<char*>(request.c_str());
+
+    ssize_t bytesToSend = request.size();
+    ssize_t bytesSent = 0;
+    ssize_t bytesReceived = 0;
+
+    unsigned char buffer[1024];
+    memset(buffer, 0, 1024);
+
+    while(bytesSent < bytesToSend)
+    {
+        size_t numBytes = connection.Write(&pRequest[bytesSent], 1024);
+        if(numBytes > 0)
+            bytesSent += numBytes;
+    }
+    
+    while ((bytesReceived = connection.Read(buffer, 1023)) > 0) 
+    {
+        handler(buffer, bytesReceived, userData);
+    }
+
+    connection.Close();
+    return true;
+}
+
+bool HttpClient::GetURIComponents(const std::string &url, std::string &path, std::string &host, std::string &scheme)
+{
+    URI uri(url);
 
     if(!uri.GetHost(host))
     {
@@ -126,62 +211,11 @@ bool HttpClient::Get(const std::string &url)
 
     scheme += "://";
 
-    TcpConnectionInfo connectionInfo;
-
-    if(!TcpConnectionInfo::CreateFromURL(scheme + host, connectionInfo))
-    {
-        Console::WriteError("Failed to create connection info from URL");
-        return false;
-    }
-
-    if(!Connect(connectionInfo))
-        return false;
-
-    std::string request = 
-    "GET " + path + " HTTP/1.1\r\n"
-    "Host: " + host + "\r\n"
-    "Accept: */*\r\n"
-    "Connection: close\r\n\r\n";
-
-    char *pRequest = const_cast<char*>(request.c_str());
-
-    ssize_t bytesToSend = request.size();
-    ssize_t bytesSent = 0;
-    ssize_t bytesReceived = 0;
-
-    unsigned char buffer[1024];
-    memset(buffer, 0, 1024);
-
-    if(ssl)
-    {
-        while(bytesSent < bytesToSend)
-        {
-            size_t numBytes = SSL_write(ssl, &pRequest[bytesSent], 1024);
-            if(numBytes > 0)
-                bytesSent += numBytes;
-        }
-        
-        while ((bytesReceived = SSL_read(ssl, buffer, 1023)) > 0) 
-        {
-            if(responseHandler)
-                responseHandler(buffer, bytesReceived);
-        }
-    }
-    else
-    {
-        while(bytesSent < bytesToSend)
-        {
-            size_t numBytes = gravy_tcp_socket_send(&socket, &pRequest[bytesSent], 1024);
-            if(numBytes > 0)
-                bytesSent += numBytes;
-        }
-        while ((bytesReceived = gravy_tcp_socket_receive(&socket, buffer, 1023)) > 0) 
-        {
-            if(responseHandler)
-                responseHandler(buffer, bytesReceived);
-        }
-    }
-
-    Close();
     return true;
+}
+
+void HttpClient::SetResponseHandler(const HttpClientResponseHandler &handler, void *userData)
+{
+    this->handler = handler;
+    this->userData = userData;
 }

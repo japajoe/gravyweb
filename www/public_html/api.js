@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
         button.addEventListener('click', function () {
             onButtonClick();
         });
-    } 
+    }
 });
 
 const data = {
