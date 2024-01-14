@@ -100,8 +100,15 @@ int gravy_tcp_socket_connect(gravy_tcp_socket_t *socket, const char *ip, uint16_
     serverAddr.sin_port = htons(port);
     serverAddr.sin_addr.s_addr = inet_addr(ip);
 
-    if(connect(socket->fd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1)
+    int result = connect(socket->fd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
+
+#ifdef _WIN32
+    if(result == SOCKET_ERROR)
         return GRAVY_ERROR;
+#else
+    if(result == -1)
+        return GRAVY_ERROR;
+#endif
     return GRAVY_SUCCESS;
 }
 
