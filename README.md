@@ -9,6 +9,7 @@ I am not an authority in the field of web servers. This project is just for fun 
 - HTTP to HTTPS forwarding
 - Create routes and controllers for different request methods (support for regular expressions too)
 - Easy to use HTTP response creation
+- A simple HTTP(S) client
 - [Example website](https://github.com/japajoe/gravyweb/tree/main/www) included
 
 # Dependencies
