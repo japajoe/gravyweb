@@ -93,6 +93,9 @@ void HttpResponse::Send(HttpStream *stream)
     }
     else
     {
+
+        //Response to HEAD request could need this
+        //A response to a HEAD request does not send any body, only content type/length etc.
         if(contentLength > 0)
         {
             builder.AddHeader("Content-Type", contentType.ToString());
@@ -104,8 +107,10 @@ void HttpResponse::Send(HttpStream *stream)
 
     std::string header = builder.ToString();
 
+    //Send the response header
     if(Send(stream, const_cast<char*>(header.data()), header.size()))
     {
+        //Send the response body
         if(content != nullptr)
             Send(stream, content.get());
     }

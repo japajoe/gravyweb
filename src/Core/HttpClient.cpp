@@ -1,6 +1,7 @@
 #include "HttpClient.hpp"
 #include "URI.hpp"
 #include "Console.hpp"
+#include "StringBuilder.hpp"
 #include <cstring>
 
 HttpClientConnection::HttpClientConnection()
@@ -151,11 +152,13 @@ bool HttpClient::Get(const std::string &url)
         return false;
     }
 
-    std::string request = 
-    "GET " + path + " HTTP/1.1\r\n"
-    "Host: " + host + "\r\n"
-    "Accept: */*\r\n"
-    "Connection: close\r\n\r\n";
+    StringBuilder sb;
+    sb.Append("GET " + path + " HTTP/1.1\r\n");
+    sb.Append("Host: " + host + "\r\n");
+    sb.Append("Accept: */*\r\n");
+    sb.Append("Connection: close\r\n\r\n");
+
+    std::string request = sb.ToString();
 
     char *pRequest = const_cast<char*>(request.c_str());
 
@@ -173,6 +176,93 @@ bool HttpClient::Get(const std::string &url)
             bytesSent += numBytes;
     }
     
+    while ((bytesReceived = connection.Read(buffer, 1023)) > 0) 
+    {
+        handler(buffer, bytesReceived, userData);
+    }
+
+    connection.Close();
+    return true;
+}
+
+bool HttpClient::Post(const std::string &url, const HttpContentType &contentType, Stream *content)
+{
+    if(!handler)
+    {
+        Console::WriteError("No response handler was set");
+        return false;
+    }
+
+    if(!content)
+    {
+        Console::WriteError("Content can not be null");
+        return false;        
+    }
+
+    if(content->GetSize() == 0)
+    {
+        Console::WriteError("Content size can not be 0");
+        return false;
+    }
+
+    if(!CreateSSLContext())
+        return false;
+
+    std::string path, host, scheme;
+
+    if(!GetURIComponents(url, path, host, scheme))
+        return false;
+
+    TcpConnectionInfo connectionInfo;
+
+    if(!TcpConnectionInfo::CreateFromURL(scheme + host, connectionInfo))
+    {
+        Console::WriteError("Failed to create connection info from URL");
+        return false;
+    }
+
+    HttpClientConnection connection;
+    
+    if(!connection.Connect(connectionInfo, connectionInfo.secure ? sslContext : nullptr))
+    {
+        return false;
+    }
+
+    StringBuilder sb;
+    sb.Append("POST " + path + " HTTP/1.1\r\n");
+    sb.Append("Host: " + host + "\r\n");
+    sb.Append("Accept: */*\r\n");
+    sb.Append("Content-Type: " + contentType.ToString());
+    sb.Append("Content-Length: " + content->GetSize());
+    sb.Append("Connection: close\r\n\r\n");
+
+    std::string request = sb.ToString();
+
+    char *pRequest = const_cast<char*>(request.c_str());
+
+    ssize_t bytesToSend = request.size();
+    ssize_t bytesSent = 0;
+    unsigned char buffer[1024];
+    std::memset(buffer, 0, 1024);
+
+    //Send the request header
+    while(bytesSent < bytesToSend)
+    {
+        size_t numBytes = connection.Write(&pRequest[bytesSent], 1024);
+        if(numBytes > 0)
+            bytesSent += numBytes;
+    }
+
+    //Send the request body (the content)
+    if(!Send(&connection, content))
+    {
+        Console::WriteError("Failed to send content");
+        connection.Close();
+        return false;
+    }
+
+    ssize_t bytesReceived = 0;
+
     while ((bytesReceived = connection.Read(buffer, 1023)) > 0) 
     {
         handler(buffer, bytesReceived, userData);
@@ -216,4 +306,32 @@ void HttpClient::SetResponseHandler(const HttpClientResponseHandler &handler, vo
 {
     this->handler = handler;
     this->userData = userData;
+}
+
+bool HttpClient::Send(HttpClientConnection *connection, Stream *data)
+{
+    if(data == nullptr)
+        return false;
+
+    if(data->GetSize() == 0)
+        return false;
+
+    const size_t chunkSize = 1024;
+    unsigned char buffer[1024];
+    std::memset(buffer, 0, 1024);
+    size_t dataSize = data->GetSize();
+
+    for (size_t offset = 0; offset < dataSize; offset += chunkSize) 
+    {
+        size_t remaining = dataSize - offset;
+        size_t currentChunkSize = (remaining > chunkSize) ? chunkSize : remaining;
+
+        // Copy the current chunk of data into the buffer
+        data->Read(buffer, 0, currentChunkSize);
+
+        if(connection->Write(buffer, currentChunkSize) <= 0)
+            return false;
+    }
+
+    return true;
 }

@@ -3,6 +3,8 @@
 
 #include "gravy_tcp.h"
 #include "TcpConnectionInfo.hpp"
+#include "HttpContentType.hpp"
+#include "Stream.hpp"
 #include <string>
 #include <functional>
 #include <cstdlib>
@@ -31,11 +33,13 @@ private:
     void *userData;
     bool CreateSSLContext();
     bool GetURIComponents(const std::string &url, std::string &path, std::string &host, std::string &scheme);
+    bool Send(HttpClientConnection *connection, Stream *data);
 public:
     HttpClient();
     ~HttpClient();
     void SetResponseHandler(const HttpClientResponseHandler &handler, void *userData = nullptr);
     bool Get(const std::string &url);
+    bool Post(const std::string &url, const HttpContentType &contentType, Stream *content);
 };
 
 #endif
