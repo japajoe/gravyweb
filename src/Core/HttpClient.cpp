@@ -320,7 +320,7 @@ bool HttpClient::Send(HttpClientConnection *connection, Stream *data)
     unsigned char buffer[1024];
     std::memset(buffer, 0, 1024);
     size_t dataSize = data->GetSize();
-
+    
     for (size_t offset = 0; offset < dataSize; offset += chunkSize) 
     {
         size_t remaining = dataSize - offset;
