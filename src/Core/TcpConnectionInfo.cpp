@@ -35,7 +35,7 @@ bool TcpConnectionInfo::CreateFromURL(const std::string &url, TcpConnectionInfo 
     std::string ip;
     uint16_t port;
 
-    if(!GetIPAndPort(uri, ip, port, true))
+    if(!GetIPAndPort(uri, ip, port, secure))
         return false;
 
     connectionInfo.hostName = uri;
