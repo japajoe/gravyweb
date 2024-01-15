@@ -1,3 +1,6 @@
+#ifndef FILESTREAM_HPP
+#define FILESTREAM_HPP
+
 #include "Stream.hpp"
 #include <fstream>
 
@@ -84,3 +87,5 @@ public:
     ssize_t Seek(ssize_t offset, SeekOrigin origin) override;
     void Dispose() override;
 };
+
+#endif
