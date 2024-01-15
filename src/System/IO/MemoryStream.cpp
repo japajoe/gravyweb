@@ -69,6 +69,33 @@ size_t MemoryStream::Write(void *buffer, size_t offset, size_t numBytes)
     return numBytes;
 }
 
+ssize_t MemoryStream::Seek(ssize_t offset, SeekOrigin origin)
+{
+    if(!data)
+        return -1;
+
+    switch (origin)
+    {
+    case SeekOrigin::Begin:
+        readPosition = std::max(static_cast<size_t>(0), std::min(static_cast<size_t>(offset), size));
+        break;
+    case SeekOrigin::Current:
+        readPosition = std::max(static_cast<size_t>(0), std::min(readPosition + offset, size));
+        break;
+    case SeekOrigin::End:
+        readPosition = std::max(static_cast<size_t>(0), std::min(size + offset, size));
+        break;
+    default:
+        // Invalid seek origin
+        return -1;
+    }
+
+    writePosition = readPosition; // Update write position as well
+
+    return readPosition;
+}
+
+
 void MemoryStream::Dispose()
 {
     if(ownsMemory && data)

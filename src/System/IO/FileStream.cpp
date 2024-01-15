@@ -101,6 +101,36 @@ size_t FileStream::Write(void *buffer, size_t offset, size_t size)
     return size;
 }
 
+ssize_t FileStream::Seek(ssize_t offset, SeekOrigin origin)
+{
+    if(!file.good())
+        return -1;
+
+    std::ios_base::seekdir seekDir;
+
+    switch (origin)
+    {
+    case SeekOrigin::Begin:
+        seekDir = std::ios_base::beg;
+        break;
+    case SeekOrigin::Current:
+        seekDir = std::ios_base::cur;
+        break;
+    case SeekOrigin::End:
+        seekDir = std::ios_base::end;
+        break;
+    default:
+        // Invalid seek origin
+        return -1;
+    }
+
+    file.seekg(offset, seekDir);
+    readPosition = file.tellg();
+    writePosition = file.tellp();
+
+    return readPosition;
+}
+
 void FileStream::Dispose()
 {
     if (file.is_open())

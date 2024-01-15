@@ -27,6 +27,11 @@ size_t Stream::Write(void *buffer, size_t offset, size_t size)
     return 0;
 }
 
+ssize_t Seek(ssize_t offset, SeekOrigin origin)
+{
+    return 0;
+}
+
 size_t Stream::GetReadPosition() const
 {
     return readPosition;
